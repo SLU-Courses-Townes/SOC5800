@@ -1,0 +1,7 @@
+"0","```r
+# Multiple Regression
+CRECEIVEregression <- lm(CRECEIVE ~ GYEAR + CAT02 + CAT03 + CAT04 + CLAIMS + 
+                           ORIGINAL + GENERAL + FWDAPLAG, 
+                         data = Sample90to95C, na.action = na.omit)
+summary(CRECEIVEregression)
+```"

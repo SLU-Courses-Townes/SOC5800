@@ -1,0 +1,46 @@
+"0","```r
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(GYEAR))
+ggsave(here(\"results\", \"histogramGYEAR.png\"), dpi = 300)
+ggsave(here(\"results\", \"histogramGYEAR.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(CRECEIVE))
+ggsave(here(\"Results\", \"histogramCRECEIVE.png\"), dpi = 300)
+ggsave(here(\"Results\", \"histogramCRECEIVE.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(CAT))
+ggsave(here(\"Results\", \"histogramCAT.png\"), dpi = 300)
+ggsave(here(\"Results\", \"histogramCAT.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(CLAIMS))
+ggsave(here(\"Results\", \"histogramCLAIMS.png\"), dpi = 300)
+ggsave(here(\"Results\", \"histogramCLAIMS.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(CMADE))
+ggsave(here(\"Results\", \"histogramCMADE.png\"), dpi = 300)
+ggsave(here(\"Results\", \"histogramCMADE.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(GENERAL))
+ggsave(here(\"Results\", \"histogramGENERAL.png\"), dpi = 300)
+ggsave(here(\"Results\", \"histogramGENERAL.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(ORIGINAL))
+ggsave(here(\"Results\", \"histogramORIGINAL.png\"), dpi = 300)
+ggsave(here(\"Results\", \"histogramORIGINAL.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(FWDAPLAG))
+ggsave(here(\"Results\", \"histogramFWDAPLAG.png\"), dpi = 300)
+ggsave(here(\"Results\", \"histogramFWDAPLAG.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_histogram(Sample90to95B, mapping = aes(BCKGTLAG))
+ggsave(here(\"Results\", \"histogramBCKGTLAG.png\"), dpi = 300)
+ggsave(here(\"Results\", \"histogramBCKGTLAG.jpg\"), dpi = 300)
+```"

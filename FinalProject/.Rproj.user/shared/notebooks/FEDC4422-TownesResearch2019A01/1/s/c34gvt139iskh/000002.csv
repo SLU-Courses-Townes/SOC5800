@@ -1,0 +1,103 @@
+"0","```r
+# Global check of linear regression assumptions
+par(mfrow=c(2,2))
+gvlma(CRECEIVEregressionTrfm)
+
+# View residuals
+CRECEIVEresidTrfm <- residuals(CRECEIVEregressionTrfm)
+png(filename = here(\"Results\",\"MultRegresTrfmModelResidualsPlotA.png\"))
+plot(CRECEIVEresidTrfm)
+dev.off()
+
+CRECEIVEresidTrfm <- residuals(CRECEIVEregressionTrfm)
+jpeg(filename = here(\"Results\",\"MultRegresTrfmModelResidualsPlotA.jpg\"))
+plot(CRECEIVEresidTrfm)
+dev.off()
+
+ggplot(CRECEIVEregressionTrfm)+
+  aes(x=.fitted, y=.resid)+
+  geom_point()
+ggsave(here(\"Results\",\"MultRegresTrfmModelResidualsPlotB.png\"))
+ggsave(here(\"Results\",\"MultRegresTrfmModelResidualsPlotB.jpg\"))
+
+# Check that mean of residuals equals zero
+mean(CRECEIVEregressionTrfm$residuals)
+
+# Check for normality of residuals
+# Check for homoscedasticity of residuals or equal variance
+png(filename = here(\"Results\", \"MultRegresTrfmModelResidualsDistribution.png\"))
+par(mfrow=c(2,2)) # set 2 rows and 2 column layout for plot
+plot(CRECEIVEregressionTrfm)
+dev.off()
+
+jpeg(filename = here(\"Results\", \"MultRegresTrfmModelResidualsDistribution.jpg\"))
+par(mfrow=c(2,2)) # set 2 rows and 2 column layout for plot
+plot(CRECEIVEregressionTrfm)
+dev.off()
+
+# Check for autocorrelation of residuals using Durbin-Watson test
+# Null hypothesis: true autocorrelation is zero
+# Alternative hypothesis: true autocorrelation is greater than zero
+AutoCorrTrfm <- dwtest(CRECEIVEregressionTrfm)
+print(AutoCorrTrfm)
+
+# Check that the independent variables and the residuals are uncorrelated
+CorrGYEARtrfm <- cor.test(Sample90to95D$GYEAR, CRECEIVEregressionTrfm$residuals)
+print(CorrGYEARtrfm)
+
+CorrCATtrfm <- cor.test(Sample90to95D$CAT, CRECEIVEregressionTrfm$residuals)
+print(CorrCATtrfm)
+
+CorrCLAIMStrfm <- cor.test(Sample90to95D$CLAIMS, CRECEIVEregressionTrfm$residuals)
+print(CorrCLAIMStrfm)
+
+CorrORIGINALtrfm <- cor.test(Sample90to95D$ORIGINAL, CRECEIVEregressionTrfm$residuals)
+print(CorrORIGINALtrfm)
+
+CorrGENERALtrfm <- cor.test(Sample90to95D$GENERAL, CRECEIVEregressionTrfm$residuals)
+print(CorrGENERALtrfm)
+
+CorrFWDAPLAGtrfm <- cor.test(Sample90to95D$FWDAPLAG, CRECEIVEregressionTrfm$residuals)
+print(CorrFWDAPLAGtrfm)
+
+# Check that the variability in independent variable values is positive
+varGYEARtrfm <- var(Sample90to95D$GYEAR)
+print(varGYEARtrfm)
+
+varCAT02trfm <- var(Sample90to95D$CAT02)
+print(varCAT02trfm)
+
+varCAT03trfm <- var(Sample90to95D$CAT03)
+print(varCAT03trfm)
+
+varCAT04trfm <- var(Sample90to95D$CAT04)
+print(varCAT04trfm)
+
+varCAT05trfm <- var(Sample90to95D$CAT05)
+print(varCAT05trfm)
+
+varCAT06trfm <- var(Sample90to95D$CAT06)
+print(varCAT06trfm)
+
+varCLAIMStrfm <- var(Sample90to95D$CLAIMS)
+print(varCLAIMStrfm)
+
+varCMADEtrfm <- var(Sample90to95D$CMADE)
+print(varCMADEtrfm)
+
+varGENERALtrfm <- var(Sample90to95D$GENERAL)
+print(varGENERALtrfm)
+
+varORIGINALtrfm <- var(Sample90to95D$ORIGINAL)
+print(varORIGINALtrfm)
+
+varFWDAPLAGtrfm <- var(Sample90to95D$FWDAPLAG)
+print(varFWDAPLAGtrfm)
+
+varBCKGTLAGtrfm <- var(Sample90to95D$BCKGTLAG)
+print(varBCKGTLAGtrfm)
+
+# Calculate Variance Inflaction Factors to check for perfect multicollinearity among the variables
+VIFregressionTrfm <- vif(CRECEIVEregressionTrfm)
+print(VIFregressionTrfm)
+```"

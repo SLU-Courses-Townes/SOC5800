@@ -1,0 +1,49 @@
+"0","```r
+Sample90to95C %>%
+  group_by(GYEAR) %>%
+  summarize(n())
+
+Sample90to95C %>%
+  group_by(CRECEIVE) %>%
+  summarize(n())
+
+Sample90to95C %>%
+  group_by(CRECbinary) %>%
+  summarize(n())
+
+Sample90to95C %>%  
+  group_by(CAT) %>%
+  summarize(n())
+
+Sample90to95C %>%  
+  group_by(CAT01) %>%
+  summarize(n())
+
+Sample90to95C %>%  
+  group_by(CAT02) %>%
+  summarize(n())
+
+Sample90to95C %>%  
+  group_by(CAT03) %>%
+  summarize(n())
+
+Sample90to95C %>%  
+  group_by(CAT04) %>%
+  summarize(n())
+
+Sample90to95C %>%  
+  group_by(CAT05) %>%
+  summarize(n())
+
+Sample90to95C %>%  
+  group_by(CAT06) %>%
+  summarize(n())
+
+Sample90to95C %>%  
+  group_by(CLAIMS) %>%
+  summarize(n())
+
+Sample90to95C %>%    
+  group_by(CMADE) %>%
+  summarize(n())
+```"

@@ -1,0 +1,9 @@
+"0","```r
+ggplot(Sample90to95D)+
+  aes(sample = CRECEIVEsqrt)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"CRECEIVEsqrt Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotCRECEIVEsqrt.png\"))
+ggsave(here(\"Results\", \"QQplotCRECEIVEsqrt.jpg\"))
+```"

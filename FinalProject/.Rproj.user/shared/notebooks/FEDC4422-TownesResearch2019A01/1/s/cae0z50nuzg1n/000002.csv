@@ -1,0 +1,10 @@
+"0","```r
+Sample90to95B %>%
+  mutate(CRECbinary = ifelse(CRECEIVE == 0, 0, 1)) %>%
+  mutate(CAT01 = ifelse(CAT == 1, 1, 0)) %>%
+  mutate(CAT02 = ifelse(CAT == 2, 1, 0)) %>%
+  mutate(CAT03 = ifelse(CAT == 3, 1, 0)) %>%
+  mutate(CAT04 = ifelse(CAT == 4, 1, 0)) %>%
+  mutate(CAT05 = ifelse(CAT == 5, 1, 0)) %>%
+  mutate(CAT06 = ifelse(CAT == 6, 1, 0)) -> Sample90to95C
+```"

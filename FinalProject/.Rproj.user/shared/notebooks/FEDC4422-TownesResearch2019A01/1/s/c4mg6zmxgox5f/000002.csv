@@ -1,0 +1,5 @@
+"0","```r
+Sample90to95C %>% 
+  mutate(CRECordinal = ifelse (CRECEIVE>=15,15,CRECEIVE)) -> Sample90to95C
+Sample90to95C <- as_tibble(Sample90to95C) # convert data frame to tibble
+```"

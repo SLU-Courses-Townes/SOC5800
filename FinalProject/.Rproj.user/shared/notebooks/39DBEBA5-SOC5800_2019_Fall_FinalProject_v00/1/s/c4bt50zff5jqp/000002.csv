@@ -1,0 +1,2 @@
+"0","dataRaw <- read.csv(here(""DataRaw"",""SOC5800_Data_ChoiceText_CSV.csv""), "
+"0","                      sep = "","", header = TRUE, fill = TRUE, dec = ""."")"

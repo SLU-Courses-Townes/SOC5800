@@ -1,0 +1,5 @@
+"0","```r
+Sample90to95C %>% 
+  filter(CRECEIVE <= 10) %>%
+  mutate(CRECEIVEsqrt = sqrt(CRECEIVE)) -> Sample90to95D
+```"

@@ -1,0 +1,7 @@
+"0","```r
+# Multiple Regression with Transformed Dependent Variable
+CRECEIVEregressionTrfm <- lm(CRECEIVEsqrt ~ GYEAR + CAT02 + CAT03 + CAT04 + 
+                               CLAIMS + ORIGINAL + GENERAL + FWDAPLAG, 
+                             data = Sample90to95D, na.action = na.omit)
+summary(CRECEIVEregressionTrfm)
+```"

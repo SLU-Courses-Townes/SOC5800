@@ -1,0 +1,6 @@
+"0","```r
+miss_var_summary(Sample90to95A, order = TRUE)
+miss_case_summary(Sample90to95A, order = TRUE)
+get_dupes(Sample90to95A, PATENT)
+get_dupes(Sample90to95A)
+```"

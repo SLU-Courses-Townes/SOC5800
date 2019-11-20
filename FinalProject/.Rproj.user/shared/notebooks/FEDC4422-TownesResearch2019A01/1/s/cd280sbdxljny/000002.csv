@@ -1,0 +1,41 @@
+"0","```r
+ggplot() +
+  geom_point(Sample90to95B, mapping = aes(x = GYEAR, y = CRECEIVE))
+ggsave(here(\"results\", \"scatterCRECEIVEbyGYEAR.png\"), dpi = 300)
+ggsave(here(\"results\", \"scatterCRECEIVEbyGYEAR.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_point(Sample90to95B, mapping = aes(x = CAT, y = CRECEIVE))
+ggsave(here(\"results\", \"scatterCRECEIVEbyCAT.png\"), dpi = 300)
+ggsave(here(\"results\", \"scatterCRECEIVEbyCAT.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_point(Sample90to95B, mapping = aes(x = CLAIMS, y = CRECEIVE))
+ggsave(here(\"results\", \"scatterCRECEIVEbyCLAIMS.png\"), dpi = 300)
+ggsave(here(\"results\", \"scatterCRECEIVEbyCLAIMS.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_point(Sample90to95B, mapping = aes(x = CMADE, y = CRECEIVE))
+ggsave(here(\"results\", \"scatterCRECEIVEbyCMADE.png\"), dpi = 300)
+ggsave(here(\"results\", \"scatterCRECEIVEbyCMADE.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_point(Sample90to95B, mapping = aes(x = GENERAL, y = CRECEIVE))
+ggsave(here(\"results\", \"scatterCRECEIVEbyGENERAL.png\"), dpi = 300)
+ggsave(here(\"results\", \"scatterCRECEIVEbyGENERAL.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_point(Sample90to95B, mapping = aes(x = ORIGINAL, y = CRECEIVE))
+ggsave(here(\"results\", \"scatterCRECEIVEbyORIGINAL.jpg\"), dpi = 300)
+ggsave(here(\"results\", \"scatterCRECEIVEbyORIGINAL.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_point(Sample90to95B, mapping = aes(x = FWDAPLAG, y = CRECEIVE))
+ggsave(here(\"results\", \"scatterCRECEIVEbyFWDAPLAG.png\"), dpi = 300)
+ggsave(here(\"results\", \"scatterCRECEIVEbyFWDAPLAG.jpg\"), dpi = 300)
+
+ggplot() +
+  geom_point(Sample90to95B, mapping = aes(x = BCKGTLAG, y = CRECEIVE))
+ggsave(here(\"results\", \"scatterCRECEIVEbyBCKGTLAG.png\"), dpi = 300)
+ggsave(here(\"results\", \"scatterCRECEIVEbyBCKGTLAG.jpg\"), dpi = 300)
+```"

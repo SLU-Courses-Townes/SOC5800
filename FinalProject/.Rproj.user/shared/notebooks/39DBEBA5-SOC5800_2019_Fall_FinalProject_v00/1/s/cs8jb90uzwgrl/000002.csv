@@ -1,0 +1,4 @@
+"0","dataRaw <- read.csv(here(""DataRaw"",""SOC5800_Data_ChoiceText_CSV""), "
+"0","                      sep = "","", header = TRUE, fill = TRUE, dec = ""."")"
+"2","Error in file(file, ""rt"") : cannot open the connection
+"

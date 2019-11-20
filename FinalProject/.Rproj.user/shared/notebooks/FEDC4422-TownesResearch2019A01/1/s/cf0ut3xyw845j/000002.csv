@@ -1,0 +1,4 @@
+"0","```r
+DataRaw <- read.table(here(\"DataRaw\",\"NBERpatents1963to1999/apat63_99.txt\"), 
+                      sep = \",\", header = TRUE, fill = TRUE, dec = \".\")
+```"

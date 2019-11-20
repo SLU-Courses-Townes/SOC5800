@@ -1,0 +1,7 @@
+"0","```r
+set.seed(1972)
+Sample90to95 <- sample(1:nrow(DataSubset90to95), size = 2000, 
+                       replace = TRUE, prob = NULL)
+Sample90to95 <- DataSubset90to95[Sample90to95,]
+Sample90to95 <- as_tibble(Sample90to95)
+```"

@@ -1,0 +1,8 @@
+"0","```r
+Sample90to95C %>%
+  mutate(CRECmdnSplt = ifelse(CRECEIVE <= median(CRECEIVE),0,1)) -> Sample90to95C
+
+Sample90to95C %>%
+  group_by(CRECordinal) %>%
+  summarize(n())
+```"

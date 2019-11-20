@@ -1,0 +1,4 @@
+"0","```r
+write.csv(Sample90to95C, here(\"DataClean\",\"NBERpatents1963to1999\",\"NBERPatCitSample90to95C.csv\"), append = FALSE)
+write.csv(Sample90to95D, here(\"DataClean\",\"NBERpatents1963to1999\",\"NBERPatCitSample90to95D.csv\"), append = FALSE)
+```"

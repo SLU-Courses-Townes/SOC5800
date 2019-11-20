@@ -1,0 +1,175 @@
+---
+title: "R Notebook: SOC 5800 Team Project"
+author: "Malcolm S. Townes"
+date: '(`r format(Sys.time(), "%B %d, %Y")`)'
+output: 
+    github_document: default
+    html_notebook: default
+    html_document: default
+    word_document: default
+    always_allow_html: yes
+---
+
+## Introduction
+This is an R Notebook for a study that examines how formerly incarcerated individuals who successfully reintegrated cope with barriers to re-entry.  This study was conducted as a team project for the SOC 5800 Survey Design and Sampling course during the Fall 2019 semester at Saint Louis University.
+
+## Project Set Up
+The following code chunk enables the R Notebook to integrate seamlessly with the project organization format. This is normally included in the R Notebook to simplify file calls and enable file portability but it has been causing an error. To work around this problem, I've embedded the `here()` function where I enter a file path when necessary.
+
+```{r setup-project, message = FALSE, warning = FALSE}
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+## Load Dependencies
+The following code chunk loads package dependencies required to perform the necessary tasks. Basic tasks include importing, reading, wrangling, and cleaning data; selecting a subset of the data; checking for unique observations; analyzing missing data; and performing various types of regression analyses. 
+```{r load-dependencies, message = FALSE, warning = FALSE}
+library(tidyverse) # loads the basic R packages
+library(here) # enables file portability
+library(readr) # functions for reading data
+library(dplyr) # functions for data wrangling
+library(janitor) # functions for data cleaning
+library(naniar) # functions for analyzing missing data
+library(expss) # functions for calculating on values
+library(ggplot2) # functions for data visualizations
+library(boot) # functions for regression analysis
+library(ordinal) # functions for regression models for ordinal data
+library(MASS) # functions for ordered logistic or probit regression
+library(broom) # functions for tidying ordinal logistic regression models
+library(gvlma) # functions for global validation of linear model assumptions
+library(lmtest) # functions for testing linear regression models
+library(leaps) # functions for regression subset selection
+library(car) # companion to applied regression
+library(aod) # functions to analyze overdispersed data counts and proportions
+library(pscl) # contains function for pseudo R2 measures for logistic regression
+library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test
+```
+
+## Load Raw Data
+The following code chunk imports the raw data from the `csv` file.
+```{r import-data, message = FALSE, warning = FALSE}
+dataRaw <- read.csv(here("DataRaw","SOC5800_Data_NumericValues_CSV.csv"), 
+                      sep = ",", header = TRUE, fill = TRUE, dec = ".")
+```
+
+## Clean Data
+The following code chunk performs several actions to clean the raw data.
+```{r clean-data}
+dataRaw %>%
+  rename(startDate = StartDate,
+         endDate = EndDate,
+         status = Status,
+         IPAddress = IPaddress,
+         progress = Progress,
+         sessionDuration = Duration..in.seconds.,
+         surveyCompleted = Finished,
+         surveyDate = RecordedDate,
+         responseID = Respondseid,
+         locationLat = LocationLatitude,
+         locationLong = LocationLongitude,
+         consent = Q43,
+         browserName = Q10_Browser,
+         browserVersion = Q10_Version,
+         opSyst = Q10_Operating.System,
+         screenRes = Q10_Resolution,
+         currentlyIncarcerated = Q1,
+         currentlyDetained = Q2,
+         residentialTreatment = Q3,
+         involCommitment = Q4,
+         gender = Q5,
+         genderSelfDescribe = Q5_3_TEXT,
+         transgender = Q7,
+         ethnicityRace = Q6,
+         primaryEthnicityRace = Q6_10_TEXT,
+         typeHometown = Q8,
+         religiousAffiliation = Q9,
+         ReligiousOther = Q9_12_TEXT,
+         ageNow = Q11,
+         ageRelease = Q13,
+         incarcerationYears = Q14.1_1,
+         incarcerationMonths = Q14.2_1,
+         educationLevels = Q15,
+         whenHighestEd = Q16,
+         relationshipStatus = Q17,
+         householdSize = Q18,
+         financialSupportInitial = Q19,
+         financialSupportGovt = Q19_4_TEXT,
+         financialSupportNonGovt = Q19_5_TEXT,
+         finanicalSupportOther = Q19_6_TEXT,
+         selfEmployment = Q20,
+         incomeInitial = Q21,
+         incomeLastYr = Q22,
+         financialStatus = Q23,
+         savings = Q24,
+         pssQ1 = Q41_1,
+         pssQ2 = Q41_2,
+         pssQ3 = Q41_3,
+         pssQ4 = Q41_4,
+         pssQ5 = Q41_5,
+         pssQ6 = Q41_6,
+         pssQ7 = Q41_7,
+         pssQ8 = Q41_8,
+         pssQ9 = Q41_9,
+         pssQ10 = Q41_10,
+         pssQ11 = Q41_11,
+         pssQ12 = Q41_12,
+         supportResidence = Q30_1,
+         supportJob = Q30_2,
+         supportAddiction = Q30_3,
+         supportTransportation = Q30_4,
+         supportFinancial = Q30_5,
+         friendResidence = Q31_1,
+         friendJob = Q31_2,
+         friendAddiction = Q31_3,
+         friendTransportation = Q31_4,
+         friendFinancial = Q31_5,
+         programsUsed = Q32,
+         importancePublicTrans = Q33_1,
+         importanceHousing = Q33_2,
+         importanceSNAP = Q33_3,
+         importanceWIC = Q33_4,
+         importanceTANF = Q33_5,
+         importanceEITC = Q33_6,
+         importanceJobTraining = Q33_7,
+         importanceMedicare = Q33_8,
+         importanceEducAid = Q33_9,
+         aceQ1 = Q34_1,
+         aceQ2 = Q34_2,
+         aceQ3 = Q34_3,
+         aceQ4 = Q34_4,
+         aceQ5 = Q34_5,
+         aceQ6 = Q34_6,
+         aceQ7 = Q34_7,
+         aceQ8 = Q34_8,
+         aceQ9 = Q34_9,
+         aceQ10 = Q34_10,
+         helpDuring = Q35,
+         helpDuringType = Q33,
+         helpDuringOther = Q33_8_TEXT,
+         helpAfter = Q36,
+         helpAfterType = Q44,
+         helpAfterOther = Q44_8_TEXT,
+         gritQ1 = Q35_1,
+         gritQ2 = Q35_2,
+         gritQ3 = Q35_3,
+         gritQ4 = Q35_4,
+         gritQ5 = Q35_5,
+         gritQ6 = Q35_6,
+         gritQ7 = Q35_7,
+         girtQ8 = Q35_8,
+         stayInitial = Q36.1,
+         stayInitialOther = Q36_6_TEXT,
+         foodSecurityQ1 = Q37_1,
+         foodSecurityQ2 = Q37_2,
+         mostHelpful = Q38,
+         greatestObstacle = Q39,
+         helpKind = Q40,
+         justiceInteraction = Q41
+         ) -> dataRenamed
+
+dataRenamed %>%
+  select (-c(status, Finished, RecipientLastName, RecipientFirstName, RecipientEmail, ExternalReference)) %>%
+  mutate (mspssScore = (pssQ1+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2)/12) %>%
+  mutate (aceScore = aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10) %>%
+  mutate (gritQ1R = 6-gritQ1, gritQ3R = 6-gritQ3, gritQ5R = 6-gritQ5, gritQ6R = 6-gritQ6) %>%
+  mutate (gritScore = (gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8) -> dataAugmented
+```

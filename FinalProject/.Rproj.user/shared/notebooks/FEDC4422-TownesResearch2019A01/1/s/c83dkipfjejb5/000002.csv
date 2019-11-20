@@ -1,0 +1,15 @@
+"0","```r
+Sample90to95B <- Sample90to95A
+Sample90to95B$GENERAL[is.na(x=Sample90to95B$GENERAL)] <- 0
+Sample90to95B$ORIGINAL[is.na(x=Sample90to95B$ORIGINAL)] <- 1
+Sample90to95B$FWDAPLAG[is.na(x=Sample90to95B$FWDAPLAG)] <- max(Sample90to95B$FWDAPLAG, na.rm = TRUE)
+Sample90to95B$BCKGTLAG[is.na(x=Sample90to95B$BCKGTLAG)] <- max(Sample90to95B$BCKGTLAG, na.rm = TRUE)
+
+Sample90to95B %>%
+  distinct() -> Sample90to95B
+
+miss_var_summary(Sample90to95B, order = TRUE)
+miss_case_summary(Sample90to95B, order = TRUE)
+get_dupes(Sample90to95B, PATENT)
+get_dupes(Sample90to95B)
+```"

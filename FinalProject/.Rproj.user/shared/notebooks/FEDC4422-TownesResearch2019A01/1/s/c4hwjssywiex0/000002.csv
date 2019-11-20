@@ -1,0 +1,6 @@
+"0","```r
+DataRaw %>% # subset data
+  filter(GYEAR>=1990) %>%
+  filter(GYEAR<=1995) -> DataSubset90to95
+DataSubset90to95 <- as_tibble(DataSubset90to95) # convert data frame to tibble
+```"

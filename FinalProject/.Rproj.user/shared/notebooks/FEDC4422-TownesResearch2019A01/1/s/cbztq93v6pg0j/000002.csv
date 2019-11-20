@@ -1,0 +1,65 @@
+"0","```r
+ggplot(Sample90to95B)+
+  aes(sample = GYEAR)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"GYEAR Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotGYEAR.png\"))
+ggsave(here(\"Results\", \"QQplotGYEAR.jpg\"))
+
+ggplot(Sample90to95B)+
+  aes(sample = CRECEIVE)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"CRECEIVE Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotCRECEIVE.png\"))
+ggsave(here(\"Results\", \"QQplotCRECEIVE.jpg\"))
+
+ggplot(Sample90to95B)+
+  aes(sample = CLAIMS)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"CLAIMS Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotCLAIMS.png\"))
+ggsave(here(\"Results\", \"QQplotCLAIMS.jpg\"))
+
+ggplot(Sample90to95B)+
+  aes(sample = CMADE)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"CMADE Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotCMADE.png\"))
+ggsave(here(\"Results\", \"QQplotCMADE.jpg\"))
+
+ggplot(Sample90to95B)+
+  aes(sample = GENERAL)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"GENERAL Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotGENERAL.png\"))
+ggsave(here(\"Results\", \"QQplotGENERAL.jpg\"))
+
+ggplot(Sample90to95B)+
+  aes(sample = ORIGINAL)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"ORIGINAL Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotORIGINAL.png\"))
+ggsave(here(\"Results\", \"QQplotORIGINAL.jpg\"))
+
+ggplot(Sample90to95B)+
+  aes(sample = FWDAPLAG)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"FWDAPLAG Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotFWDAPLAG.png\"))
+ggsave(here(\"Results\", \"QQplotFWDAPLAG.jpg\"))
+
+ggplot(Sample90to95B)+
+  aes(sample = BCKGTLAG)+
+  stat_qq()+
+  stat_qq_line()+
+  ggtitle(\"BCKGTLAG Q-Q Plot\")
+ggsave(here(\"Results\", \"QQplotBCKGTLAG.png\"))
+ggsave(here(\"Results\", \"QQplotBCKGTLAG.jpg\"))
+```"

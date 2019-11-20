@@ -1,0 +1,22 @@
+"0","```r
+logitCRECEIVE <- glm(CRECbinary ~ GYEAR + as.factor(CAT) + CMADE + CLAIMS + 
+                       ORIGINAL + GENERAL + FWDAPLAG + BCKGTLAG, 
+                     data = Sample90to95C, family = binomial, 
+                     na.action = na.omit)
+summary(logitCRECEIVE)
+
+# Raise e to the coefficients
+print(exp(coef(logitCRECEIVE)))
+
+# Obtain various pseudo R-squared measures
+print(pR2(logitCRECEIVE))
+
+# Confidence intervals for the coefficients
+print(exp(confint(logitCRECEIVE, level = 0.95)))
+
+# Hosmer-Lemeshow Goodness of Fit Test
+HosLemBinomial <- hoslem.test(Sample90to95C$CRECbinary, 
+                              fitted(logitCRECEIVE), g=10)
+print(HosLemBinomial)
+print(cbind(HosLemBinomial$expected, HosLemBinomial$observed))
+```"

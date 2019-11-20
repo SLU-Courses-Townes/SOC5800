@@ -1,0 +1,6 @@
+"0","```r
+Sample90to95 %>%
+  dplyr::select(PATENT, GYEAR, CRECEIVE, CAT, CLAIMS, CMADE, GENERAL, 
+                ORIGINAL, FWDAPLAG, BCKGTLAG) -> Sample90to95A 
+# Another package also has a `select()` function
+```"
