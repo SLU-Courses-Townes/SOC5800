@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1574341803814.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "1AF614B5",
+    "lastKnownWriteTime" : 1564092184,
+    "last_content_update" : 1564092184,
+    "path" : "D:/TownesResearch2019A01/Docs/TownesResearch2019A01.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "212,0",
+        "scrollLine" : "198"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

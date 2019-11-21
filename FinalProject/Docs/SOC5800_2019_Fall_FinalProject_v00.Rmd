@@ -3,10 +3,10 @@ title: "R Notebook: SOC 5800 Team Project"
 author: "Malcolm S. Townes"
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output: 
-    github_document: default
+    word_document: default
     html_notebook: default
     html_document: default
-    word_document: default
+    github_document: default
     always_allow_html: yes
 ---
 
@@ -44,6 +44,7 @@ library(aod) # functions to analyze overdispersed data counts and proportions
 library(pscl) # contains function for pseudo R2 measures for logistic regression
 library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test
 library(psy) # functions for various procedures used in psychometry
+library(psych) #Procedures for Psychological, Psychometric, and Personality Research
 ```
 
 ## Load Raw Data
@@ -53,8 +54,8 @@ dataRaw <- read.csv(here("Data","DataRaw","SOC5800_Data_NumericValues_CSV.csv"),
                       sep = ",", header = TRUE, fill = TRUE, dec = ".")
 ```
 
-## Clean Data
-The following code chunk performs several actions to clean the raw data. It first renames the variables with descriptive camel case names. It then removes unused variables and creates additional variables needed for the study analysis.
+## Rename Variables
+The following code chunk performs several actions to clean the raw data. It first renames the variables with descriptive camel case names. It then removes unused variables.
 ```{r clean-data}
 dataRaw %>%
   rename(startDate = StartDate,
@@ -169,33 +170,14 @@ dataRaw %>%
          ) -> dataRenamed
 
 dataRenamed %>%
-  dplyr::select (-c(status, progress, RecipientLastName, RecipientFirstName, RecipientEmail, ExternalReference)) %>%
-  mutate (mspssScore = (pssQ1+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2)/12) %>%
-  mutate (aceScore = aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10) %>%
-  mutate (gritQ1R = 6-gritQ1, gritQ3R = 6-gritQ3, gritQ5R = 6-gritQ5, gritQ6R = 6-gritQ6) %>%
-  mutate (gritScore = (gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8) -> dataAugmented
+  dplyr::select (-c(status, progress, RecipientLastName, RecipientFirstName, RecipientEmail, ExternalReference)) -> dataAugmented
 ```
-%>%
-  mutate (povertyLevel = if(incomeLastYr <= 5) {
-    (8070+(incomeLastYr*4420))/(8070+(householdSize*4420))
-    } else {
-      if(incomeLastYr = 6) {
-        (50000/(8070+(householdSize*4420)))
-      } else {
-        if(incomeLastYr = 7) {
-          (100000/(8070+(householdSize*4420)))
-           } else {
-             (150000/(8070+(householdSize*4420)))
-             }
-        }
-      }
-    ) -> dataAugmented
 
 ## Change Data Type
-The following code chunk changes each variable to the appropriate type.
+The following code chunk changes the data type for certain variables.
 ```{r change-data-types}
-dataAugmented$ageNow <- as.numeric(dataAugmented$ageNow)
-dataAugmented$ageRelease <- as.numeric(dataAugmented$ageRelease)
+#dataAugmented$ageNow <- as.numeric(dataAugmented$ageNow)
+#dataAugmented$ageRelease <- as.numeric(dataAugmented$ageRelease)
 dataAugmented$pssQ1 <- as.numeric(dataAugmented$pssQ1)
 dataAugmented$pssQ2 <- as.numeric(dataAugmented$pssQ2)
 dataAugmented$pssQ3 <- as.numeric(dataAugmented$pssQ3)
@@ -219,17 +201,44 @@ dataAugmented$aceQ8 <- as.numeric(dataAugmented$aceQ8)
 dataAugmented$aceQ9 <- as.numeric(dataAugmented$aceQ9)
 dataAugmented$aceQ10 <- as.numeric(dataAugmented$aceQ10)
 dataAugmented$gritQ1 <- as.numeric(dataAugmented$gritQ1)
-dataAugmented$gritQ1R <- as.numeric(dataAugmented$gritQ1R)
 dataAugmented$gritQ2 <- as.numeric(dataAugmented$gritQ2)
 dataAugmented$gritQ3 <- as.numeric(dataAugmented$gritQ3)
-dataAugmented$gritQ3R <- as.numeric(dataAugmented$gritQ3R)
 dataAugmented$gritQ4 <- as.numeric(dataAugmented$gritQ4)
 dataAugmented$gritQ5 <- as.numeric(dataAugmented$gritQ5)
-dataAugmented$gritQ5R <- as.numeric(dataAugmented$gritQ5R)
 dataAugmented$gritQ6 <- as.numeric(dataAugmented$gritQ6)
-dataAugmented$gritQ6R <- as.numeric(dataAugmented$gritQ6R)
 dataAugmented$gritQ7 <- as.numeric(dataAugmented$gritQ7)
 dataAugmented$gritQ8 <- as.numeric(dataAugmented$gritQ8)
+```
+
+## Create Variables
+The following code chunk creates additional variables needed for the study.
+```{r scales}
+dataAugmented %>%
+  mutate (mspssScore = (pssQ1+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2)/12) %>%
+  mutate (aceScore = aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10) %>%
+  mutate (gritQ1R = 6-gritQ1, gritQ3R = 6-gritQ3, gritQ5R = 6-gritQ5, gritQ6R = 6-gritQ6) %>%
+  mutate (gritScore = (gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8) %>%
+  mutate (povertyRatio = if(as.numeric(incomeLastYr) <= 6) {
+    (8070+(as.numeric(incomeLastYr)*4420))/(8070+(as.numeric(householdSize)*4420))
+    } else {
+      if(as.numeric(incomeLastYr) == 7) {
+        (50000/(8070+(as.numeric(householdSize)*4420)))
+      } else {
+        if(as.numeric(incomeLastYr) == 8) {
+          (75000/(8070+(as.numeric(householdSize)*4420)))
+           } else {
+             if(as.numeric(incomeLastYr) == 9) {
+               (100000/(8070+(as.numeric(householdSize)*4420)))
+             } else {
+               (150000/(8070+(as.numeric(householdSize*4420))))
+             }
+          }
+      }
+    }
+    ) -> dataAugmented
+
+dataAugmented %>%
+  replace_with_na_all(~.x=="") -> dataAugmented
 ```
 
 ## Select Cases
@@ -243,17 +252,27 @@ dataAugmented %>%
   subset(involCommitment=2) -> dataClean
 ```
 
+## Missing Data
+The following code chunk evaluates missing data.
+```{r missing-data}
+miss_var_summary(dataClean, order = TRUE)
+miss_case_summary(dataClean, order = TRUE)
+```
+
 ## Descriptive Statistics
 The following code calculates descriptive statistics for select variables of interest.
 ```{r descriptive-stats}
 print("Number of cases:") 
 nrow(dataClean)
+
 print("gender")
-summary(dataClean$gender)
+table((dataClean$gender))
+
 print("ageNow")
-summary(dataClean$ageNow)
+describe(as.numeric(dataClean$ageNow), na.rm = TRUE)
+
 print("ageRelease")
-summary(dataClean$ageRelease)
+describe(as.numeric(dataClean$ageRelease), na.rm = TRUE)
 ```
 
 ## Compute Scale Reliabilities
@@ -273,6 +292,18 @@ reliabilityGrit <- cronbach (subset(dataClean, select=c(gritQ1, gritQ2, gritQ3, 
 print("Reliability for Short Grit Scale")
 reliabilityGrit
 print(" ")
+```
+
+## Comparison of Means
+The following code chunk performs calculations for comparison of means of the primary variables of interest.
+```{r means}
+
+```
+
+## Correlational Analysis
+The following code chunk performs correlational analysis for the primary variables of interest.
+```{r correlation}
+
 ```
 
 ## Save Data

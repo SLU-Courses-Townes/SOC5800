@@ -19,3 +19,4 @@
 "0","library(pscl) # contains function for pseudo R2 measures for logistic regression"
 "0","library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test"
 "0","library(psy) # functions for various procedures used in psychometry"
+"0","library(psych) #Procedures for Psychological, Psychometric, and Personality Research"
