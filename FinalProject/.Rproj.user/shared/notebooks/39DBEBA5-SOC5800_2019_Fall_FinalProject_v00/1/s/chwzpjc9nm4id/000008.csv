@@ -1,0 +1,6 @@
+"0","dataAugmented <- dataAugmented[-c(1,2),]"
+"0","dataAugmented %>%"
+"0","  subset(currentlyIncarcerated=2) %>%"
+"0","  subset(currentlyDetained=2) %>%"
+"0","  subset(residentialTreatment=2) %>%"
+"0","  subset(involCommitment=2) -> dataClean"

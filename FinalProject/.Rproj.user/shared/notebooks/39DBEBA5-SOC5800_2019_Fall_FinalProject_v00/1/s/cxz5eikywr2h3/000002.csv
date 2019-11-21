@@ -1,0 +1,2 @@
+"0","write.csv(dataClean, here(""Data"",""DataClean"",""SOC5800_Data_NumericValues_Clean_CSV.csv""), append = FALSE)"
+"2","attempt to set 'append' ignored"

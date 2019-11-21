@@ -37,33 +37,35 @@ library(MASS) # functions for ordered logistic or probit regression
 library(broom) # functions for tidying ordinal logistic regression models
 library(gvlma) # functions for global validation of linear model assumptions
 library(lmtest) # functions for testing linear regression models
+library(ltm) # functions for latent trait models under Item Response Theory
 library(leaps) # functions for regression subset selection
 library(car) # companion to applied regression
 library(aod) # functions to analyze overdispersed data counts and proportions
 library(pscl) # contains function for pseudo R2 measures for logistic regression
 library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test
+library(psy) # functions for various procedures used in psychometry
 ```
 
 ## Load Raw Data
 The following code chunk imports the raw data from the `csv` file.
 ```{r import-data, message = FALSE, warning = FALSE}
-dataRaw <- read.csv(here("DataRaw","SOC5800_Data_NumericValues_CSV.csv"), 
+dataRaw <- read.csv(here("Data","DataRaw","SOC5800_Data_NumericValues_CSV.csv"), 
                       sep = ",", header = TRUE, fill = TRUE, dec = ".")
 ```
 
 ## Clean Data
-The following code chunk performs several actions to clean the raw data.
+The following code chunk performs several actions to clean the raw data. It first renames the variables with descriptive camel case names. It then removes unused variables and creates additional variables needed for the study analysis.
 ```{r clean-data}
 dataRaw %>%
   rename(startDate = StartDate,
          endDate = EndDate,
          status = Status,
-         IPAddress = IPaddress,
+         IPaddress = IPAddress,
          progress = Progress,
          sessionDuration = Duration..in.seconds.,
          surveyCompleted = Finished,
          surveyDate = RecordedDate,
-         responseID = Respondseid,
+         responseID = ResponseId,
          locationLat = LocationLatitude,
          locationLong = LocationLongitude,
          consent = Q43,
@@ -155,7 +157,7 @@ dataRaw %>%
          gritQ5 = Q35_5,
          gritQ6 = Q35_6,
          gritQ7 = Q35_7,
-         girtQ8 = Q35_8,
+         gritQ8 = Q35_8,
          stayInitial = Q36.1,
          stayInitialOther = Q36_6_TEXT,
          foodSecurityQ1 = Q37_1,
@@ -167,9 +169,114 @@ dataRaw %>%
          ) -> dataRenamed
 
 dataRenamed %>%
-  select (-c(status, Finished, RecipientLastName, RecipientFirstName, RecipientEmail, ExternalReference)) %>%
+  dplyr::select (-c(status, progress, RecipientLastName, RecipientFirstName, RecipientEmail, ExternalReference)) %>%
   mutate (mspssScore = (pssQ1+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2)/12) %>%
   mutate (aceScore = aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10) %>%
   mutate (gritQ1R = 6-gritQ1, gritQ3R = 6-gritQ3, gritQ5R = 6-gritQ5, gritQ6R = 6-gritQ6) %>%
   mutate (gritScore = (gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8) -> dataAugmented
+```
+%>%
+  mutate (povertyLevel = if(incomeLastYr <= 5) {
+    (8070+(incomeLastYr*4420))/(8070+(householdSize*4420))
+    } else {
+      if(incomeLastYr = 6) {
+        (50000/(8070+(householdSize*4420)))
+      } else {
+        if(incomeLastYr = 7) {
+          (100000/(8070+(householdSize*4420)))
+           } else {
+             (150000/(8070+(householdSize*4420)))
+             }
+        }
+      }
+    ) -> dataAugmented
+
+## Change Data Type
+The following code chunk changes each variable to the appropriate type.
+```{r change-data-types}
+dataAugmented$ageNow <- as.numeric(dataAugmented$ageNow)
+dataAugmented$ageRelease <- as.numeric(dataAugmented$ageRelease)
+dataAugmented$pssQ1 <- as.numeric(dataAugmented$pssQ1)
+dataAugmented$pssQ2 <- as.numeric(dataAugmented$pssQ2)
+dataAugmented$pssQ3 <- as.numeric(dataAugmented$pssQ3)
+dataAugmented$pssQ4 <- as.numeric(dataAugmented$pssQ4)
+dataAugmented$pssQ5 <- as.numeric(dataAugmented$pssQ5)
+dataAugmented$pssQ6 <- as.numeric(dataAugmented$pssQ6)
+dataAugmented$pssQ7 <- as.numeric(dataAugmented$pssQ7)
+dataAugmented$pssQ8 <- as.numeric(dataAugmented$pssQ8)
+dataAugmented$pssQ9 <- as.numeric(dataAugmented$pssQ9)
+dataAugmented$pssQ10 <- as.numeric(dataAugmented$pssQ10)
+dataAugmented$pssQ11 <- as.numeric(dataAugmented$pssQ11)
+dataAugmented$pssQ12 <- as.numeric(dataAugmented$pssQ12)
+dataAugmented$aceQ1 <- as.numeric(dataAugmented$aceQ1)
+dataAugmented$aceQ2 <- as.numeric(dataAugmented$aceQ2)
+dataAugmented$aceQ3 <- as.numeric(dataAugmented$aceQ3)
+dataAugmented$aceQ4 <- as.numeric(dataAugmented$aceQ4)
+dataAugmented$aceQ5 <- as.numeric(dataAugmented$aceQ5)
+dataAugmented$aceQ6 <- as.numeric(dataAugmented$aceQ6)
+dataAugmented$aceQ7 <- as.numeric(dataAugmented$aceQ7)
+dataAugmented$aceQ8 <- as.numeric(dataAugmented$aceQ8)
+dataAugmented$aceQ9 <- as.numeric(dataAugmented$aceQ9)
+dataAugmented$aceQ10 <- as.numeric(dataAugmented$aceQ10)
+dataAugmented$gritQ1 <- as.numeric(dataAugmented$gritQ1)
+dataAugmented$gritQ1R <- as.numeric(dataAugmented$gritQ1R)
+dataAugmented$gritQ2 <- as.numeric(dataAugmented$gritQ2)
+dataAugmented$gritQ3 <- as.numeric(dataAugmented$gritQ3)
+dataAugmented$gritQ3R <- as.numeric(dataAugmented$gritQ3R)
+dataAugmented$gritQ4 <- as.numeric(dataAugmented$gritQ4)
+dataAugmented$gritQ5 <- as.numeric(dataAugmented$gritQ5)
+dataAugmented$gritQ5R <- as.numeric(dataAugmented$gritQ5R)
+dataAugmented$gritQ6 <- as.numeric(dataAugmented$gritQ6)
+dataAugmented$gritQ6R <- as.numeric(dataAugmented$gritQ6R)
+dataAugmented$gritQ7 <- as.numeric(dataAugmented$gritQ7)
+dataAugmented$gritQ8 <- as.numeric(dataAugmented$gritQ8)
+```
+
+## Select Cases
+The following code chunk removes cases where the respondent was part of a protected population or did not provide informed consent.
+```{r select-cases}
+dataAugmented <- dataAugmented[-c(1,2),]
+dataAugmented %>%
+  subset(currentlyIncarcerated=2) %>%
+  subset(currentlyDetained=2) %>%
+  subset(residentialTreatment=2) %>%
+  subset(involCommitment=2) -> dataClean
+```
+
+## Descriptive Statistics
+The following code calculates descriptive statistics for select variables of interest.
+```{r descriptive-stats}
+print("Number of cases:") 
+nrow(dataClean)
+print("gender")
+summary(dataClean$gender)
+print("ageNow")
+summary(dataClean$ageNow)
+print("ageRelease")
+summary(dataClean$ageRelease)
+```
+
+## Compute Scale Reliabilities
+The following code chunk evaluates the reliability for the MSPSS, ACE, and grit scales by calculating the Cronbach's alpha for each variable.
+```{r reliabilities}
+reliabilityMSPSS <- cronbach (subset(dataClean, select=c(pssQ1, pssQ2, pssQ3, pssQ4, pssQ5, pssQ6, pssQ7, pssQ8, pssQ9, pssQ10, pssQ11, pssQ12)))
+print("Reliability for MPSS Scale")
+reliabilityMSPSS
+print(" ")
+
+reliabilityACE <- cronbach (subset(dataClean, select=c(aceQ1, aceQ2, aceQ3, aceQ4, aceQ5, aceQ6, aceQ7, aceQ8, aceQ9, aceQ10)))
+print("Reliability for ACE Scale")
+reliabilityACE
+print(" ")
+
+reliabilityGrit <- cronbach (subset(dataClean, select=c(gritQ1, gritQ2, gritQ3, gritQ4, gritQ5, gritQ6, gritQ7, gritQ8)))
+print("Reliability for Short Grit Scale")
+reliabilityGrit
+print(" ")
+```
+
+## Save Data
+The following code chunk saves the cleaned data used for the analysis. 
+```{r save-analysis}
+write.csv(dataClean, here("Data","DataClean","SOC5800_Data_NumericValues_Clean_CSV.csv"), append = FALSE)
 ```

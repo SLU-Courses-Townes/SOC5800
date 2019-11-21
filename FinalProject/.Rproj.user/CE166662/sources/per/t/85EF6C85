@@ -12,21 +12,21 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "9A23463A",
+        "cacheKey" : "E6A2B966",
         "caption" : "dataRaw",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dataRaw&cache_key=9A23463A",
-        "displayedObservations" : 64,
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=dataRaw&cache_key=E6A2B966",
+        "displayedObservations" : "61",
         "environment" : "",
         "expression" : "dataRaw",
         "object" : "dataRaw",
-        "preview" : 0,
-        "totalObservations" : 64,
-        "variables" : 115
+        "preview" : "0",
+        "totalObservations" : "61",
+        "variables" : "115"
     },
     "read_only" : false,
     "read_only_alternatives" : [
     ],
-    "relative_order" : 3,
+    "relative_order" : 4,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_dataframe"
