@@ -1,6 +1,6 @@
 ---
 title: "R Notebook: SOC 5800 Team Project"
-author: "Malcolm S. Townes"
+author: "Malcolm S. Townes, Jacob Eikenberry, Daniel Ferris, Nicholas Sokolis"
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output: 
     word_document: default
@@ -56,7 +56,7 @@ dataRaw <- read.csv(here("Data","DataRaw","SOC5800_Data_NumericValues_Raw_CSV.cs
 
 ## Rename Variables
 The following code chunk performs several actions to clean the raw data. It first renames the variables with descriptive camel case names. It then removes unused variables.
-```{r clean-data}
+```{r clean-data, message = FALSE, warning = FALSE}
 dataRaw %>%
   rename(startDate = StartDate,
          endDate = EndDate,
@@ -175,9 +175,7 @@ dataRenamed %>%
 
 ## Change Data Type
 The following code chunk changes the data type for certain variables.
-```{r change-data-types}
-#dataAugmented$ageNow <- as.numeric(dataAugmented$ageNow)
-#dataAugmented$ageRelease <- as.numeric(dataAugmented$ageRelease)
+```{r change-data-types, message = FALSE, warning = FALSE}
 dataAugmented$pssQ1 <- as.numeric(dataAugmented$pssQ1)
 dataAugmented$pssQ2 <- as.numeric(dataAugmented$pssQ2)
 dataAugmented$pssQ3 <- as.numeric(dataAugmented$pssQ3)
@@ -212,7 +210,7 @@ dataAugmented$gritQ8 <- as.numeric(dataAugmented$gritQ8)
 
 ## Adjust Value Assignments
 The following code chunk adjusts the values assigned to fixed pre-determined response choices for select variables and recodes blanks with `NA` in the dataset.
-```{r adjust-values}
+```{r adjust-values, message = FALSE, warning = FALSE}
 dataAugmented$ageNow <- (as.numeric(dataAugmented$ageNow)+17)
 dataAugmented$ageRelease <- (as.numeric(dataAugmented$ageRelease)+17)
 dataAugmented[dataAugmented==""] <- NA
@@ -220,12 +218,13 @@ dataAugmented[dataAugmented==""] <- NA
 
 ## Create Variables
 The following code chunk creates additional variables needed for the study.
-```{r scales}
+```{r scales, message = FALSE, warning = FALSE}
 dataAugmented %>%
   mutate (mspssScore = (pssQ1+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2)/12) %>%
   mutate (aceScore = aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10) %>%
   mutate (gritQ1R = 6-gritQ1, gritQ3R = 6-gritQ3, gritQ5R = 6-gritQ5, gritQ6R = 6-gritQ6) %>%
   mutate (gritScore = (gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8) %>%
+  mutate (incarcerationTime = (incarcerationYears*12)+incarcerationMonths) %>%
   mutate (povertyRatio = if(as.numeric(incomeLastYr) <= 6) {
     (8070+(as.numeric(incomeLastYr)*4420))/(8070+(as.numeric(householdSize)*4420))
     } else {
@@ -252,7 +251,7 @@ dataAugmented %>%
 
 ## Select Cases
 The following code chunk removes cases where the respondent was part of a protected population or did not provide informed consent.
-```{r select-cases}
+```{r select-cases, message = FALSE, warning = FALSE}
 dataAugmented <- dataAugmented[-c(1,2),]
 dataAugmented %>%
   subset(currentlyIncarcerated=2) %>%
@@ -261,21 +260,21 @@ dataAugmented %>%
   subset(involCommitment=2) -> dataClean
 ```
 
-## Missing Data
+## Evaluate Missing Data
 The following code chunk evaluates missing data.
-```{r missing-data}
+```{r missing-data, message = FALSE, warning = FALSE}
 miss_var_summary(dataClean, order = TRUE)
 miss_case_summary(dataClean, order = TRUE)
 ```
 
-## Descriptive Statistics
+## Calculate Descriptive Statistics
 The following code calculates descriptive statistics for select variables of interest.
-```{r descriptive-stats}
-print("Number of cases:") 
+```{r descriptive-stats, message = FALSE, warning = FALSE}
+print("Number of cases") 
 nrow(dataClean)
 
-print("gender")
-table(dataClean$gender)
+print("gender; 1 - male, 2 - female, 3 - other, 4 - undisclosed")
+table(as.numeric(dataClean$gender))
 
 print("ageNow")
 describe(as.numeric(dataClean$ageNow), na.rm = TRUE)
@@ -283,13 +282,13 @@ describe(as.numeric(dataClean$ageNow), na.rm = TRUE)
 print("ageRelease")
 describe(as.numeric(dataClean$ageRelease), na.rm = TRUE)
 
-print("selfEmployement")
-table(dataClean$selfEmployment)
+print("selfEmployment; 1 - 0%, 2 - 1-25%, 3 - 26-50%, 4 - 51-75%, 5 - 75-99%, 6 - 100%")
+table(as.numeric(dataClean$selfEmployment))
 ```
 
 ## Compute Scale Reliabilities
 The following code chunk evaluates the reliability for the MSPSS, ACE, and grit scales by calculating the Cronbach's alpha for each variable.
-```{r reliabilities, vspace="1em"}
+```{r reliabilities, message = FALSE, warning = FALSE, vspace="1em"}
 reliabilityMSPSS <- cronbach (subset(dataClean, select=c(pssQ1, pssQ2, pssQ3, pssQ4, pssQ5, pssQ6, pssQ7, pssQ8, pssQ9, pssQ10, pssQ11, pssQ12)))
 print("Reliability for MPSS Scale")
 reliabilityMSPSS
@@ -303,18 +302,28 @@ print("Reliability for Short Grit Scale")
 reliabilityGrit
 ```
 
-## Comparison of Means
+## Perform Comparison of Means
 The following code chunk performs calculations for comparison of means of the primary variables of interest.
-```{r means}
-# Comparison of grit for cases grouped by financialStatus
+```{r means, message = FALSE, warning = FALSE}
+# Comparison of gritScore for cases grouped by financialStatus
+# Coding for financialStatus (Qualitrics Q23): 1 - not able, 2 - just able, 3 - comfortable no savings, 4 - comfortable and saving
+# Coding for gritscore: values range from 1 (low grit) to 8 (high grit)
 groups <- group_by(dataClean, financialStatus)
-aovGroup <- aov(as.numeric(financialStatus) ~ gritScore, data = groups)
+
+groups %>%
+  summarise(
+    count = n(),
+    mean = mean(gritScore, na.rm = TRUE),
+    sd = sd(gritScore, na.rm = TRUE)
+  )
+
+aovGroup <- aov(gritScore ~ as.numeric(financialStatus), data = groups)
 summary(aovGroup)
 ```
 
-## Correlational Analysis
+## Perform Correlational Analysis
 The following code chunk performs correlational analysis for the primary variables of interest.
-```{r correlation}
+```{r correlation, message = FALSE, warning = FALSE}
 dataClean %>%
   dplyr::select(povertyRatio, financialStatus, ageNow, ageRelease, mspssScore, aceScore, gritScore) -> correlationDataset 
 col_names <- names(correlationDataset)
@@ -323,9 +332,9 @@ correlation <- cor(correlationDataset, use="pairwise.complete.obs")
 correlation
 ```
 
-## Regression Analysis
+## Perform Regression Analysis
 The following code chunk performs a multiple regression using select variables of interest.
-```{r regression}
+```{r regression, message = FALSE, warning = FALSE}
 regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
                         data = dataClean, na.action = na.omit)
 summary(regressionPoverty)
@@ -333,6 +342,6 @@ summary(regressionPoverty)
 
 ## Save Data
 The following code chunk saves the cleaned data used for the analysis. 
-```{r save-analysis}
+```{r save-analysis, message = FALSE, warning = FALSE}
 write.csv(dataClean, here("Data","DataClean","SOC5800_Data_NumericValues_Clean_CSV.csv"), append = FALSE)
 ```
