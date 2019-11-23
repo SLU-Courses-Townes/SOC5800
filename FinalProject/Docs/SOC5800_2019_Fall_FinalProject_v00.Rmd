@@ -220,10 +220,22 @@ dataAugmented[dataAugmented==""] <- NA
 The following code chunk creates additional variables needed for the study.
 ```{r scales, message = FALSE, warning = FALSE}
 dataAugmented %>%
-  mutate (mspssScore = (pssQ1+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2+pssQ2)/12) %>%
-  mutate (aceScore = aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10) %>%
+  mutate (mspssScore = case_when(
+    !is.na(pssQ1)|!is.na(pssQ2)|!is.na(pssQ3)|!is.na(pssQ4)|!is.na(pssQ5)|!is.na(pssQ6)|!is.na(pssQ7)|
+      !is.na(pssQ8)|!is.na(pssQ9)|!is.na(pssQ10)|!is.na(pssQ11)|!is.na(pssQ12) ~
+      (pssQ1+pssQ2+pssQ3+pssQ4+pssQ5+pssQ6+pssQ7+pssQ8+pssQ9+pssQ10+pssQ11+pssQ12)/12
+    ))%>%
+  mutate (aceScore = case_when (
+    !is.na(aceQ1)|!is.na(aceQ2)|!is.na(aceQ3)|!is.na(aceQ4)|!is.na(aceQ5)|!is.na(aceQ6)|!is.na(aceQ7)|
+      !is.na(aceQ8)|!is.na(aceQ9)|!is.na(aceQ10) ~ 
+      (aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10)
+    )) %>%
   mutate (gritQ1R = 6-gritQ1, gritQ3R = 6-gritQ3, gritQ5R = 6-gritQ5, gritQ6R = 6-gritQ6) %>%
-  mutate (gritScore = (gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8) %>%
+  mutate (gritScore = case_when(
+    !is.na(gritQ1R)|!is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2)|
+      !is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2) ~ 
+      ((gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8)
+    ))%>%
   mutate (incarcerationTime = (incarcerationYears*12)+incarcerationMonths) %>%
   mutate (povertyRatio = if(as.numeric(incomeLastYr) <= 6) {
     (8070+(as.numeric(incomeLastYr)*4420))/(8070+(as.numeric(householdSize)*4420))
@@ -290,7 +302,7 @@ table(as.numeric(dataClean$selfEmployment))
 The following code chunk evaluates the reliability for the MSPSS, ACE, and grit scales by calculating the Cronbach's alpha for each variable.
 ```{r reliabilities, message = FALSE, warning = FALSE, vspace="1em"}
 reliabilityMSPSS <- cronbach (subset(dataClean, select=c(pssQ1, pssQ2, pssQ3, pssQ4, pssQ5, pssQ6, pssQ7, pssQ8, pssQ9, pssQ10, pssQ11, pssQ12)))
-print("Reliability for MPSS Scale")
+print("Reliability for MSPSS")
 reliabilityMSPSS
 
 reliabilityACE <- cronbach (subset(dataClean, select=c(aceQ1, aceQ2, aceQ3, aceQ4, aceQ5, aceQ6, aceQ7, aceQ8, aceQ9, aceQ10)))
@@ -305,14 +317,14 @@ reliabilityGrit
 ## Perform Comparison of Means of Grit
 The following code chunk performs calculations for comparison of means of the primary variables of interest.
 ```{r means, message = FALSE, warning = FALSE}
-# Comparison of means for gritScore grouped by various operationalizations of success using ANOVA
-# Coding for gritscore: values range from 1 (low grit) to 8 (high grit)
+# Comparison of means for `gritScore` grouped by various operationalizations of success using ANOVA
+# Coding for `gritscore`: values range from 1 (low grit) to 8 (high grit)
 # Null hypothesis: the means of the different groups are the same
 # Alternative hypothesis: the sample mean of at least one group is not equal to the others
 
 
-# Comparison of gritScore for cases grouped by incomeLastYr using ANOVA
-# Coding for incomeLastYr (Qualitrics Q22): ordinal ranging 1 - 10
+# Comparison of `gritScore` for cases grouped by `incomeLastYr` using ANOVA
+# Coding for `incomeLastYr` (Qualitrics Q22): ordinal ranging 1 - 10
 groupIncome <- group_by(dataClean, incomeLastYr)
 
 groupIncome %>%
@@ -325,10 +337,10 @@ groupIncome %>%
 aovGroupIncome <- aov(gritScore ~ as.numeric(incomeLastYr), data = groupIncome)
 summary(aovGroupIncome)
 
-# Comparison of gritScore for cases grouped by povertyLevel using ANOVA
-# Coding for povertyLevel (created variable): 1 - above, 2 - below
+# Comparison of `gritScore` for cases grouped by `povertyLevel` using ANOVA
+# Coding for `povertyLevel` (created variable): 1 - above, 0 - below
 dataClean %>%
-  mutate(povertyLevel = if (povertyRatio >1) {1} else {2})-> dataClean
+  mutate(povertyLevel = if (povertyRatio >1) {1} else {0})-> dataClean
 
 dataClean[dataClean==""] <- NA
 
@@ -344,8 +356,8 @@ groupPoverty %>%
 aovGroupPoverty <- aov(gritScore ~ as.numeric(povertyLevel), data = groupPoverty)
 summary(aovGroupPoverty)
 
-# Comparison of gritScore for cases grouped by financialStatus using ANOVA
-# Coding for financialStatus (Qualitrics Q23): 1 - not able, 2 - just able, 3 - comfortable no savings, 4 - comfortable and saving
+# Comparison of `gritScore` for cases grouped by `financialStatus` using ANOVA
+# Coding for `financialStatus` (Qualitrics Q23): 1 - not able, 2 - just able, 3 - comfortable no savings, 4 - comfortable and saving
 groupFinStat <- group_by(dataClean, financialStatus)
 
 groupFinStat %>%
@@ -358,8 +370,8 @@ groupFinStat %>%
 aovGroupFinStat <- aov(gritScore ~ as.numeric(financialStatus), data = groupFinStat)
 summary(aovGroupFinStat)
 
-# Comparison of gritScore for cases grouped by savings using ANOVA
-# Coding for savings (Qualitrics Q24): 1 - yes, 2 - no
+# Comparison of `gritScore` for cases grouped by `savings` using ANOVA
+# Coding for `savings` (Qualitrics Q24): 1 - yes, 2 - no
 groupSavings <- group_by(dataClean, savings)
 
 groupSavings %>%
@@ -387,30 +399,31 @@ correlation
 ## Perform Regression Analysis
 The following code chunk performs a multiple regression using select variables of interest.
 ```{r regression, message = FALSE, warning = FALSE}
-# Multiple regression using incomeLastYr as dependent variable
+# Multiple regression using `incomeLastYr` as dependent variable
 regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
                         data = dataClean, na.action = na.omit)
 summary(regressionIncome)
 
-# Multiple regressiong using povertyRatio as dependent variable
+# Multiple regressiong using `povertyRatio` as dependent variable
 regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
                         data = dataClean, na.action = na.omit)
 summary(regressionPoverty)
 
 
-# Multiple regression using financialStatus as dependent variable
+# Multiple regression using `financialStatus` as dependent variable
 regressionFinStat <- lm(as.numeric(financialStatus) ~ as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
                         data = dataClean, na.action = na.omit)
 summary(regressionFinStat)
 
 
-# Binary logistic regression using savings as dependent variable
+# Binary logistic regression using `savings` as dependent variable
 # Prepare data
+# Recode `savings` with 1 - yes, 0 - no
 dataClean %>%
   dplyr::select(incomeLastYr, povertyRatio, povertyLevel, financialStatus, savings, ageNow, ageRelease, mspssScore, aceScore, gritScore) -> dataBinary
-dataBinary$savings <- ifelse(dataBinary$savings==2,1,ifelse(dataBinary$savings==1,0,dataBinary$savings))
+dataBinary$savings <- ifelse(dataBinary$savings==2,0,ifelse(dataBinary$savings==1,1,dataBinary$savings))
 
-# Remove cases with missing data in the savings variable
+# Remove cases with missing data in the `savings` variable
 dataBinary %>%
   drop_na(savings) -> dataBinary
 
