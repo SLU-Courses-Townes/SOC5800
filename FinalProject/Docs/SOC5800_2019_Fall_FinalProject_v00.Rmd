@@ -82,7 +82,7 @@ dataRaw %>%
          genderSelfDescribe = Q5_3_TEXT,
          transgender = Q7,
          ethnicityRace = Q6,
-         primaryEthnicityRace = Q6_10_TEXT,
+         ethnicityRaceOther = Q6_10_TEXT,
          typeHometown = Q8,
          religiousAffiliation = Q9,
          ReligiousOther = Q9_12_TEXT,
@@ -288,11 +288,40 @@ nrow(dataClean)
 print("gender; 1 - male, 2 - female, 3 - other, 4 - undisclosed")
 table(as.numeric(dataClean$gender))
 
+print("ethnicityRace; 1 - East Asian, 2 - Central Asian, 3 - Southern Asian, 4 - Black or African-American,
+      5 - Hispanic or Latino, 6 - Middle Eastern or North African, 7 - Native American or Alaska,
+      8 - Native Hawaiian or Pacific Islander, 9 - White or European, 10 - Other")
+table(as.numeric(dataClean$ethnicityRace))
+
+print("religiousAffiliation; 1 - Atheism, 2 - Agnoticism, 3 - Buddhist, 4 - Eastern Orthodox, 5 - Hindu,
+      6 - Islam, 7 - Jewish, 8 - Latter Day Saints, 9 - Non-denominational, 10 - Protestant,
+      11 - Roman Catholic, 12 - Other, 13 - prefer not to answer")
+table(as.numeric(dataClean$religousAffiliation))
+
+print("educationLevels; 1 - high schoor or GED, 2 - trade school, 3 - some college, 4 - associate,
+      5 - bachelor, 6 - master, 7 - doctorate")
+table(as.numeric(dataClean$educationLevels))
+
+print("whenHighestEd; 1 - before, 2 - during, 3 - after")
+table(as.numeric(dataClean$whenHighestEd))
+
+print("typeHometown; 1 - rural, 2 - suburban, 3 - urban")
+table(as.numeric(dataClean$typeHometown))
+
 print("ageNow")
 describe(as.numeric(dataClean$ageNow), na.rm = TRUE)
 
 print("ageRelease")
 describe(as.numeric(dataClean$ageRelease), na.rm = TRUE)
+
+print("incarcerationTime")
+summary(as.numeric(dataClean$incarcerationTime))
+
+print("incomeInitial; ordinal scale")
+table(as.numeric(dataClean$incomeInitial))
+
+print("incomeLastYr; ordinal scale")
+table(as.numeric(dataClean$incomeLastYr))
 
 print("selfEmployment; 1 - 0%, 2 - 1-25%, 3 - 26-50%, 4 - 51-75%, 5 - 75-99%, 6 - 100%")
 table(as.numeric(dataClean$selfEmployment))
