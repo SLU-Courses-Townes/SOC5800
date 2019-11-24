@@ -32,6 +32,7 @@ library(naniar) # functions for analyzing missing data
 library(expss) # functions for calculating on values
 library(ggplot2) # functions for data visualizations
 library(boot) # functions for regression analysis
+library(generalhoslem) # Hosmer-Lemeshow test for binary and multinomial logistic models
 library(ordinal) # functions for regression models for ordinal data
 library(MASS) # functions for ordered logistic or probit regression
 library(broom) # functions for tidying ordinal logistic regression models
@@ -58,7 +59,7 @@ dataRaw <- read.csv(here("Data","DataRaw","SOC5800_Data_NumericValues_Raw_CSV.cs
 The following code chunk performs several actions to clean the raw data. It first renames the variables with descriptive camel case names. It then removes unused variables.
 ```{r clean-data, message = FALSE, warning = FALSE}
 dataRaw %>%
-  rename(startDate = StartDate,
+  dplyr::rename(startDate = StartDate,
          endDate = EndDate,
          status = Status,
          IPaddress = IPAddress,
@@ -258,13 +259,15 @@ dataAugmented %>%
           }
       }
     }
-    ) -> dataAugmented
+    ) %>%
+  mutate (programsUsedBinary = case_when(
+    is.na(programsUsed) ~ 0,
+    !is.na(programsUsed) ~ 1)) -> dataAugmented
 ```
 
 ## Select Cases
 The following code chunk removes cases where the respondent was part of a protected population or did not provide informed consent.
 ```{r select-cases, message = FALSE, warning = FALSE}
-dataAugmented <- dataAugmented[-c(1,2),]
 dataAugmented %>%
   subset(currentlyIncarcerated=2) %>%
   subset(currentlyDetained=2) %>%
@@ -418,7 +421,7 @@ summary(aovGroupSavings)
 The following code chunk performs correlational analysis for the primary variables of interest.
 ```{r correlation, message = FALSE, warning = FALSE}
 dataClean %>%
-  dplyr::select(incomeLastYr, povertyRatio, financialStatus, savings, ageNow, ageRelease, mspssScore, aceScore, gritScore) -> correlationDataset 
+  dplyr::select(incomeLastYr, povertyRatio, financialStatus, savings, programsUsedBinary, ageNow, ageRelease, mspssScore, aceScore, gritScore) -> correlationDataset 
 col_names <- names(correlationDataset)
 correlationDataset[,col_names] <- lapply(correlationDataset[,col_names], as.numeric)
 correlation <- cor(correlationDataset, use="pairwise.complete.obs")
@@ -429,18 +432,20 @@ correlation
 The following code chunk performs a multiple regression using select variables of interest.
 ```{r regression, message = FALSE, warning = FALSE}
 # Multiple regression using `incomeLastYr` as dependent variable
-regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
+regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
                         data = dataClean, na.action = na.omit)
 summary(regressionIncome)
 
 # Multiple regressiong using `povertyRatio` as dependent variable
-regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
+regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + 
+                          as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
                         data = dataClean, na.action = na.omit)
 summary(regressionPoverty)
 
 
 # Multiple regression using `financialStatus` as dependent variable
-regressionFinStat <- lm(as.numeric(financialStatus) ~ as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
+regressionFinStat <- lm(as.numeric(financialStatus) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) + 
+                          as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
                         data = dataClean, na.action = na.omit)
 summary(regressionFinStat)
 
@@ -449,14 +454,15 @@ summary(regressionFinStat)
 # Prepare data
 # Recode `savings` with 1 - yes, 0 - no
 dataClean %>%
-  dplyr::select(incomeLastYr, povertyRatio, povertyLevel, financialStatus, savings, ageNow, ageRelease, mspssScore, aceScore, gritScore) -> dataBinary
+  dplyr::select(incomeLastYr, povertyRatio, povertyLevel, financialStatus, savings, programsUsedBinary, 
+                ageNow, ageRelease, mspssScore, aceScore, gritScore) -> dataBinary
 dataBinary$savings <- ifelse(dataBinary$savings==2,0,ifelse(dataBinary$savings==1,1,dataBinary$savings))
 
 # Remove cases with missing data in the `savings` variable
 dataBinary %>%
-  drop_na(savings) -> dataBinary
+  drop_na(savings, programsUsedBinary, ageNow, ageRelease, mspssScore, aceScore, gritScore) -> dataBinary
 
-logitSavings <- glm(savings ~ ageNow + ageRelease + mspssScore + aceScore + gritScore, 
+logitSavings <- glm(savings ~ programsUsedBinary + ageNow + ageRelease + mspssScore + aceScore + gritScore, 
                      data = dataBinary, family = binomial, na.action = na.omit)
 summary(logitSavings)
 
