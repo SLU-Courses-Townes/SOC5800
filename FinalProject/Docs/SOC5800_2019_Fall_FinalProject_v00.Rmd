@@ -341,7 +341,7 @@ reliabilityACE <- cronbach (subset(dataClean, select=c(aceQ1, aceQ2, aceQ3, aceQ
 print("Reliability for ACE Scale")
 reliabilityACE
 
-reliabilityGrit <- cronbach (subset(dataClean, select=c(gritQ1, gritQ2, gritQ3, gritQ4, gritQ5, gritQ6, gritQ7, gritQ8)))
+reliabilityGrit <- cronbach (subset(dataClean, select=c(gritQ1R, gritQ2, gritQ3R, gritQ4, gritQ5R, gritQ6R, gritQ7, gritQ8)))
 print("Reliability for Short Grit Scale")
 reliabilityGrit
 ```
