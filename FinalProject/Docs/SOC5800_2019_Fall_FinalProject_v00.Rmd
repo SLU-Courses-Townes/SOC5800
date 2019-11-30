@@ -102,7 +102,7 @@ dataRaw %>%
          selfEmployment = Q20,
          incomeInitial = Q21,
          incomeLastYr = Q22,
-         financialStatus = Q23,
+         managingFinancially = Q23,
          savings = Q24,
          pssQ1 = Q41_1,
          pssQ2 = Q41_2,
@@ -116,16 +116,16 @@ dataRaw %>%
          pssQ10 = Q41_10,
          pssQ11 = Q41_11,
          pssQ12 = Q41_12,
-         supportResidence = Q30_1,
-         supportJob = Q30_2,
-         supportAddiction = Q30_3,
-         supportTransportation = Q30_4,
-         supportFinancial = Q30_5,
-         friendResidence = Q31_1,
-         friendJob = Q31_2,
-         friendAddiction = Q31_3,
-         friendTransportation = Q31_4,
-         friendFinancial = Q31_5,
+         issFamilyQ1 = Q30_1,
+         issFamilyQ2 = Q30_2,
+         issFamilyQ3 = Q30_3,
+         issFamilyQ4 = Q30_4,
+         issFamilyQ5 = Q30_5,
+         issFriendQ1 = Q31_1,
+         issFriendQ2 = Q31_2,
+         issFriendQ3 = Q31_3,
+         issFriendQ4 = Q31_4,
+         issFriendQ5 = Q31_5,
          programsUsed = Q32,
          importancePublicTrans = Q33_1,
          importanceHousing = Q33_2,
@@ -189,6 +189,16 @@ dataAugmented$pssQ9 <- as.numeric(dataAugmented$pssQ9)
 dataAugmented$pssQ10 <- as.numeric(dataAugmented$pssQ10)
 dataAugmented$pssQ11 <- as.numeric(dataAugmented$pssQ11)
 dataAugmented$pssQ12 <- as.numeric(dataAugmented$pssQ12)
+dataAugmented$issFamilyQ1 <- as.numeric(dataAugmented$issFamilyQ1)
+dataAugmented$issFamilyQ2 <- as.numeric(dataAugmented$issFamilyQ2)
+dataAugmented$issFamilyQ3 <- as.numeric(dataAugmented$issFamilyQ3)
+dataAugmented$issFamilyQ4 <- as.numeric(dataAugmented$issFamilyQ4)
+dataAugmented$issFamilyQ5 <- as.numeric(dataAugmented$issFamilyQ5)
+dataAugmented$issFriendQ1 <- as.numeric(dataAugmented$issFriendQ1)
+dataAugmented$issFriendQ2 <- as.numeric(dataAugmented$issFriendQ2)
+dataAugmented$issFriendQ3 <- as.numeric(dataAugmented$issFriendQ3)
+dataAugmented$issFriendQ4 <- as.numeric(dataAugmented$issFriendQ4)
+dataAugmented$issFriendQ5 <- as.numeric(dataAugmented$issFriendQ5)
 dataAugmented$aceQ1 <- as.numeric(dataAugmented$aceQ1)
 dataAugmented$aceQ2 <- as.numeric(dataAugmented$aceQ2)
 dataAugmented$aceQ3 <- as.numeric(dataAugmented$aceQ3)
@@ -214,6 +224,26 @@ The following code chunk adjusts the values assigned to fixed pre-determined res
 ```{r adjust-values, message = FALSE, warning = FALSE}
 dataAugmented$ageNow <- (as.numeric(dataAugmented$ageNow)+11)
 dataAugmented$ageRelease <- (as.numeric(dataAugmented$ageRelease)+11)
+
+# Recode variables with `yes` and `no` response options as 1 and 0 respectively
+dataAugmented %>%
+  mutate(savings = case_when(
+    savings == 1 ~ 1,
+    savings == 2 ~ 0,
+    TRUE ~ savings)
+  )%>%
+  mutate(helpDuring = case_when(
+    helpDuring == 1 ~ 1,
+    helpDuring == 2 ~ 0,
+    TRUE ~ helpDuring)
+  )%>%
+  mutate(helpAfter = case_when(
+    helpDuring == 1 ~ 1,
+    helpDuring == 2 ~ 0,
+    TRUE ~ helpAfter)
+    )-> dataAugmented
+
+# Recode instances of missing data with `NA`
 dataAugmented[dataAugmented==""] <- NA
 ```
 
@@ -221,37 +251,71 @@ dataAugmented[dataAugmented==""] <- NA
 The following code chunk creates additional variables needed for the study.
 ```{r scales, message = FALSE, warning = FALSE}
 dataAugmented %>%
+  # Calculate score for multidimensional scale for percieved social support
   mutate (mspssScore = case_when(
     !is.na(pssQ1)|!is.na(pssQ2)|!is.na(pssQ3)|!is.na(pssQ4)|!is.na(pssQ5)|!is.na(pssQ6)|!is.na(pssQ7)|
       !is.na(pssQ8)|!is.na(pssQ9)|!is.na(pssQ10)|!is.na(pssQ11)|!is.na(pssQ12) ~
-      (pssQ1+pssQ2+pssQ3+pssQ4+pssQ5+pssQ6+pssQ7+pssQ8+pssQ9+pssQ10+pssQ11+pssQ12)/12
-    ))%>%
+      (pssQ1+pssQ2+pssQ3+pssQ4+pssQ5+pssQ6+pssQ7+pssQ8+pssQ9+pssQ10+pssQ11+pssQ12)/12,
+    TRUE ~ NA)
+    )%>%
+  
+  # Calculate score for family instrumental social support
+  mutate (issFamilyScore = case_when(
+    !is.na(issFamilyQ1)|!is.na(issFamilyQ2)|!is.na(issFamilyQ3)|!is.na(issFamilyQ4)|!is.na(issFamilyQ5)
+    ~ (issFamilyQ1+issFamilyQ2+issFamilyQ3+issFamilyQ4+issFamilyQ5)/5,
+    TRUE ~ NA)
+  )%>%
+  
+  # Calculate score for friend instrumental social support
+  mutate (issFriendScore = case_when(
+    !is.na(issFriendQ1)|!is.na(issFriendQ2)|!is.na(issFriendQ3)|!is.na(issFriendQ4)|!is.na(issFriendQ5)
+    ~ (issFriendQ1+issFriendQ2+issFriendQ3+issFriendQ4+issFriendQ5)/5,
+    TRUE ~ NA)
+  )%>%
+  
+  # Calculate score for total instrumental social support
+  mutate(issTotalScore = case_when(
+    !is.na(issFriendScore)|!is.na(issFamilyScore) ~ (issFamilyScore+issFriendScore)/2,
+    TRUE ~ NA)
+  )%>%
+  
+  # Calculate score for adverse childhood experience
   mutate (aceScore = case_when (
     !is.na(aceQ1)|!is.na(aceQ2)|!is.na(aceQ3)|!is.na(aceQ4)|!is.na(aceQ5)|!is.na(aceQ6)|!is.na(aceQ7)|
       !is.na(aceQ8)|!is.na(aceQ9)|!is.na(aceQ10) ~ 
-      (aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10)
-    )) %>%
+      (aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10),
+    TRUE ~ NA)
+    ) %>%
+  
+  # Calculate socre for grit
   mutate (gritQ1R = 6-gritQ1, gritQ3R = 6-gritQ3, gritQ5R = 6-gritQ5, gritQ6R = 6-gritQ6) %>%
   mutate (gritScore = case_when(
     !is.na(gritQ1R)|!is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2)|
       !is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2) ~ 
       ((gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8)
     ))%>%
-  mutate (incarcerationTime = (incarcerationYears*12)+incarcerationMonths) %>%
+  
+  # Calculate total incarceration time in months
+  mutate (incarcerationTime = ((incarcerationYears-1)*12)+(incarcerationMonths-1)) %>%
+  
+  # Calculate total time released
+  mutate (timeReleased = ageNow - ageRelease) %>%
+  
+  # Calculate interval variable for poverty ratio
   mutate (povertyRatio = if(as.numeric(incomeLastYr) <= 6) {
-    (8070+(as.numeric(incomeLastYr)*4420))/(8070+(as.numeric(householdSize)*4420))
+    (12490+((as.numeric(incomeLastYr)-1))*4420)/(8070+(as.numeric(householdSize)*4420))
     } else {
       if(as.numeric(incomeLastYr) == 7) {
-        (34591/(8070+(as.numeric(householdSize)*4420)))
+        (59590/(8070+(as.numeric(householdSize)*4420)))
       } else {
         if(as.numeric(incomeLastYr) == 8) {
-          (50001/(8070+(as.numeric(householdSize)*4420)))
+          (62500/(8070+(as.numeric(householdSize)*4420)))
            } else {
              if(as.numeric(incomeLastYr) == 9) {
-               (75001/(8070+(as.numeric(householdSize)*4420)))
+               (87500/(8070+(as.numeric(householdSize)*4420)))
              } else {
                if(as.numeric(incomeLastYr) == 10) {
-                 (100001/(8070+(as.numeric(householdSize*4420))))
+                 (125000/(8070+(as.numeric(householdSize*4420))))
                } else {
                  (150000/(8070+(as.numeric(householdSize)*4420)))
                }
@@ -260,19 +324,44 @@ dataAugmented %>%
       }
     }
     ) %>%
+  
+  # Calculate change in income
+  mutate(incomeChange = incomeLastYr - incomeInitial) %>%
+  
+  # Determine highest education level
+  mutate(educationHighest = max(as.numeric(educationLevels),na.rm = FALSE)) %>%
+  
+  # Calculate binary variable indicating food insecurity
+  mutate(foodInsecurity = case_when(
+    foodSecurityQ1 = 2|foodSecurityQ1 = 3|foodSecurityQ2 = 2|foodSecurityQ2 = 3 ~ 1,
+    foodSecurityQ1 = 1 & foodSecurityQ2 = 1 ~ 0,
+    TRUE ~ 0
+  ))%>%
+  
+  # Calculate binary variable indicating use of any social services
   mutate (programsUsedBinary = case_when(
     is.na(programsUsed) ~ 0,
-    !is.na(programsUsed) ~ 1)) -> dataAugmented
+    !is.na(programsUsed) ~ 1)) %>%
+  
+  # Determine number of public and social services used after release
+  mutate(countServicesAfter = nchar(programsUsed)) %>%
+  
+  # Determine number of social services used during incarceration
+  mutate(countHelpDuring = nchar(helpDuring)) %>%
+  
+  # Determine number of social services used after release
+  mutate(countHelpAfter = nchar(helpAfter)) -> dataAugmented
 ```
 
 ## Select Cases
-The following code chunk removes cases where the respondent was part of a protected population or did not provide informed consent.
+The following code chunk removes cases where the respondent was part of a protected population or did not provide informed consent. The original data for the variables was not recoded. It then removes duplicate cases.
 ```{r select-cases, message = FALSE, warning = FALSE}
 dataAugmented %>%
   subset(currentlyIncarcerated=2) %>%
   subset(currentlyDetained=2) %>%
   subset(residentialTreatment=2) %>%
-  subset(involCommitment=2) -> dataClean
+  subset(involCommitment=2) %>%
+  distinct()-> dataClean
 ```
 
 ## Evaluate Missing Data
@@ -290,44 +379,57 @@ nrow(dataClean)
 
 print("gender; 1 - male, 2 - female, 3 - other, 4 - undisclosed")
 table(as.numeric(dataClean$gender))
+percentages(as.numeric(dataClean$gender))
 
 print("ethnicityRace; 1 - East Asian, 2 - Central Asian, 3 - Southern Asian, 4 - Black or African-American,
       5 - Hispanic or Latino, 6 - Middle Eastern or North African, 7 - Native American or Alaska,
       8 - Native Hawaiian or Pacific Islander, 9 - White or European, 10 - Other")
 table(as.numeric(dataClean$ethnicityRace))
+percentages(as.numeric(dataClean$ethnicityRace))
 
 print("religiousAffiliation; 1 - Atheism, 2 - Agnoticism, 3 - Buddhist, 4 - Eastern Orthodox, 5 - Hindu,
       6 - Islam, 7 - Jewish, 8 - Latter Day Saints, 9 - Non-denominational, 10 - Protestant,
       11 - Roman Catholic, 12 - Other, 13 - prefer not to answer")
 table(as.numeric(dataClean$religousAffiliation))
+percentages(as.numeric(dataClean$religiousAffiliation))
 
 print("educationLevels; 1 - high schoor or GED, 2 - trade school, 3 - some college, 4 - associate,
       5 - bachelor, 6 - master, 7 - doctorate")
 table(as.numeric(dataClean$educationLevels))
+percentages(as.numeric(dataClean$educationLevels))
 
 print("whenHighestEd; 1 - before, 2 - during, 3 - after")
 table(as.numeric(dataClean$whenHighestEd))
+percentages(as.numeric(dataClean$whenHighestEd))
 
 print("typeHometown; 1 - rural, 2 - suburban, 3 - urban")
 table(as.numeric(dataClean$typeHometown))
+percentages(as.numeric(dataClean$typeHometown))
 
-print("ageNow")
+print("ageNow; ratio data (years)")
 describe(as.numeric(dataClean$ageNow), na.rm = TRUE)
 
-print("ageRelease")
+print("ageRelease; ratio data (years)")
 describe(as.numeric(dataClean$ageRelease), na.rm = TRUE)
 
-print("incarcerationTime")
+print("incarcerationTime; ratio data (months)")
 summary(as.numeric(dataClean$incarcerationTime))
 
-print("incomeInitial; ordinal scale")
+print("incomeInitial; ordinal data")
 table(as.numeric(dataClean$incomeInitial))
+percentages(as.numeric(dataClean$incomeInitial))
 
-print("incomeLastYr; ordinal scale")
+print("incomeLastYr; ordinal data")
 table(as.numeric(dataClean$incomeLastYr))
+percentages(as.numeric(dataClean$incomeLastYr))
 
 print("selfEmployment; 1 - 0%, 2 - 1-25%, 3 - 26-50%, 4 - 51-75%, 5 - 75-99%, 6 - 100%")
 table(as.numeric(dataClean$selfEmployment))
+percentages(as.numeric(dataClean$selfEmployment))
+
+print("foodInsecurity; 1 - yes, 0 - no")
+table(as.number(dataClean$foodInsecurity))
+percentages(as.numeric(dataClean$foodInsecurity))
 ```
 
 ## Compute Scale Reliabilities
@@ -337,6 +439,14 @@ reliabilityMSPSS <- cronbach (subset(dataClean, select=c(pssQ1, pssQ2, pssQ3, ps
 print("Reliability for MSPSS")
 reliabilityMSPSS
 
+reliabilityISSfamily <- cronbach (subset(dataClean, select=c(issFamilyQ1, issFamilyQ2, issFamilyQ3, issFamilyQ4, issFamilyQ5)))
+print("Reliability for Family Instrumental Social Support")
+reliabilityISSfamily
+
+reliabilityISSfriend <- cronbach (subset(dataClean, select=c(issFriendQ1, issFriendQ2, issFriendQ3, issFriendQ4, issFriendQ5)))
+print("Reliability for Family Instrumental Social Support")
+reliabilityISSfriend
+
 reliabilityACE <- cronbach (subset(dataClean, select=c(aceQ1, aceQ2, aceQ3, aceQ4, aceQ5, aceQ6, aceQ7, aceQ8, aceQ9, aceQ10)))
 print("Reliability for ACE Scale")
 reliabilityACE
@@ -344,6 +454,10 @@ reliabilityACE
 reliabilityGrit <- cronbach (subset(dataClean, select=c(gritQ1R, gritQ2, gritQ3R, gritQ4, gritQ5R, gritQ6R, gritQ7, gritQ8)))
 print("Reliability for Short Grit Scale")
 reliabilityGrit
+
+reliabilityHungerVitalSigns <- cronbach (subset(dataClean, select=c(foodSecurityQ1,foodSecurityQ2)))
+print("Reliability for Hunger Vital Signs")
+reliabilityHungerVitalSigns
 ```
 
 ## Perform Comparison of Means of Grit
@@ -390,7 +504,7 @@ summary(aovGroupPoverty)
 
 # Comparison of `gritScore` for cases grouped by `financialStatus` using ANOVA
 # Coding for `financialStatus` (Qualitrics Q23): 1 - not able, 2 - just able, 3 - comfortable no savings, 4 - comfortable and saving
-groupFinStat <- group_by(dataClean, financialStatus)
+groupFinStat <- group_by(dataClean, managingFinancially)
 
 groupFinStat %>%
   summarise(
@@ -399,7 +513,7 @@ groupFinStat %>%
     sd = sd(gritScore, na.rm = TRUE)
   )
 
-aovGroupFinStat <- aov(gritScore ~ as.numeric(financialStatus), data = groupFinStat)
+aovGroupFinStat <- aov(gritScore ~ as.numeric(managingFinancially), data = groupFinStat)
 summary(aovGroupFinStat)
 
 # Comparison of `gritScore` for cases grouped by `savings` using ANOVA
@@ -421,7 +535,10 @@ summary(aovGroupSavings)
 The following code chunk performs correlational analysis for the primary variables of interest.
 ```{r correlation, message = FALSE, warning = FALSE}
 dataClean %>%
-  dplyr::select(incomeLastYr, povertyRatio, financialStatus, savings, programsUsedBinary, ageNow, ageRelease, mspssScore, aceScore, gritScore) -> correlationDataset 
+  dplyr::select(incomeLastYr, incomeChange, povertyRatio, managingFinancially, savings, programsUsedBinary,
+                countServicesAfter, countHelpDuring, countHelpAfter, educationHighest, ageNow, ageRelease,
+                incarcerationTime, timeReleased, mspssScore, issTotalScore, aceScore, gritScore, 
+                gender, ethnicityRace, typeHometown) -> correlationDataset 
 col_names <- names(correlationDataset)
 correlationDataset[,col_names] <- lapply(correlationDataset[,col_names], as.numeric)
 correlation <- cor(correlationDataset, use="pairwise.complete.obs")
@@ -432,37 +549,41 @@ correlation
 The following code chunk performs a multiple regression using select variables of interest.
 ```{r regression, message = FALSE, warning = FALSE}
 # Multiple regression using `incomeLastYr` as dependent variable
-regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
+regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) +
+                         as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issTotalScore +
+                         aceScore + gritScore + gender + ethnicityRace + typeHometown, 
                         data = dataClean, na.action = na.omit)
 summary(regressionIncome)
 
 # Multiple regressiong using `povertyRatio` as dependent variable
-regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + 
-                          as.numeric(ageNow) + as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
+regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) +
+                         as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issTotalScore +
+                         aceScore + gritScore + gender + ethnicityRace + typeHometown,  
                         data = dataClean, na.action = na.omit)
 summary(regressionPoverty)
 
 
-# Multiple regression using `financialStatus` as dependent variable
-regressionFinStat <- lm(as.numeric(financialStatus) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) + 
-                          as.numeric(ageRelease) + mspssScore + aceScore + gritScore, 
+# Multiple regression using `managingFinancially` as dependent variable
+regressionFinStat <- lm(as.numeric(managingFinancially) ~ as.numeric(programsUsedBinary) + 
+                          as.numeric(ageNow) + as.numeric(ageRelease) + as.numeric(timeReleased) + 
+                          mspssScore + issTotalScore + aceScore + gritScore + gender + ethnicityRace +
+                          typeHometown,  
                         data = dataClean, na.action = na.omit)
 summary(regressionFinStat)
 
 
 # Binary logistic regression using `savings` as dependent variable
 # Prepare data
-# Recode `savings` with 1 - yes, 0 - no
 dataClean %>%
   dplyr::select(incomeLastYr, povertyRatio, povertyLevel, financialStatus, savings, programsUsedBinary, 
-                ageNow, ageRelease, mspssScore, aceScore, gritScore) -> dataBinary
-dataBinary$savings <- ifelse(dataBinary$savings==2,0,ifelse(dataBinary$savings==1,1,dataBinary$savings))
+                ageNow, ageRelease, mspssScore, issTotalScore, aceScore, gritScore) -> dataBinary
 
 # Remove cases with missing data in the `savings` variable
 dataBinary %>%
-  drop_na(savings, programsUsedBinary, ageNow, ageRelease, mspssScore, aceScore, gritScore) -> dataBinary
+  drop_na() -> dataBinary
 
-logitSavings <- glm(savings ~ programsUsedBinary + ageNow + ageRelease + mspssScore + aceScore + gritScore, 
+logitSavings <- glm(savings ~ programsUsedBinary + ageNow + ageRelease + mspssScore + issTotalScore + 
+                      aceScore + gritScore, 
                      data = dataBinary, family = binomial, na.action = na.omit)
 summary(logitSavings)
 
