@@ -45,7 +45,8 @@ library(aod) # functions to analyze overdispersed data counts and proportions
 library(pscl) # contains function for pseudo R2 measures for logistic regression
 library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test
 library(psy) # functions for various procedures used in psychometry
-library(psych) #Procedures for Psychological, Psychometric, and Personality Research
+library(psych) # Procedures for Psychological, Psychometric, and Personality Research
+library(taRifx) # Collection of utility and convenience functions
 ```
 
 ## Load Raw Data
@@ -227,21 +228,24 @@ dataAugmented$ageRelease <- (as.numeric(dataAugmented$ageRelease)+11)
 
 # Recode variables with `yes` and `no` response options as 1 and 0 respectively
 dataAugmented %>%
-  mutate(savings = case_when(
-    savings == 1 ~ 1,
-    savings == 2 ~ 0,
-    TRUE ~ savings)
-  )%>%
-  mutate(helpDuring = case_when(
-    helpDuring == 1 ~ 1,
-    helpDuring == 2 ~ 0,
-    TRUE ~ helpDuring)
-  )%>%
-  mutate(helpAfter = case_when(
-    helpDuring == 1 ~ 1,
-    helpDuring == 2 ~ 0,
-    TRUE ~ helpAfter)
-    )-> dataAugmented
+  mutate(savings = ifelse (savings == 1,1,0)) %>%
+  mutate(helpDuring = ifelse(helpDuring == 1,1,0)) %>%
+  mutate(helpAfter = ifelse(helpAfter == 1,1,0)) -> dataAugmented
+#  mutate(savings = case_when(
+#    as.numeric(savings) == 1 ~ 1,
+#    as.numeric(savings) == 2 ~ 0,
+#    TRUE ~ savings)
+#  )%>%
+#  mutate(helpDuring = case_when(
+#    as.numeric(helpDuring) == 1 ~ 1,
+#    as.numeric(helpDuring) == 2 ~ 0,
+#    TRUE ~ helpDuring)
+#  )%>%
+#  mutate(helpAfter = case_when(
+#    as.numeric(helpDuring) == 1 ~ 1,
+#    as.numeric(helpDuring) == 2 ~ 0,
+#    TRUE ~ helpAfter)
+#    )-> dataAugmented
 
 # Recode instances of missing data with `NA`
 dataAugmented[dataAugmented==""] <- NA
@@ -255,36 +259,31 @@ dataAugmented %>%
   mutate (mspssScore = case_when(
     !is.na(pssQ1)|!is.na(pssQ2)|!is.na(pssQ3)|!is.na(pssQ4)|!is.na(pssQ5)|!is.na(pssQ6)|!is.na(pssQ7)|
       !is.na(pssQ8)|!is.na(pssQ9)|!is.na(pssQ10)|!is.na(pssQ11)|!is.na(pssQ12) ~
-      (pssQ1+pssQ2+pssQ3+pssQ4+pssQ5+pssQ6+pssQ7+pssQ8+pssQ9+pssQ10+pssQ11+pssQ12)/12,
-    TRUE ~ NA)
+      (pssQ1+pssQ2+pssQ3+pssQ4+pssQ5+pssQ6+pssQ7+pssQ8+pssQ9+pssQ10+pssQ11+pssQ12)/12)
     )%>%
   
   # Calculate score for family instrumental social support
   mutate (issFamilyScore = case_when(
     !is.na(issFamilyQ1)|!is.na(issFamilyQ2)|!is.na(issFamilyQ3)|!is.na(issFamilyQ4)|!is.na(issFamilyQ5)
-    ~ (issFamilyQ1+issFamilyQ2+issFamilyQ3+issFamilyQ4+issFamilyQ5)/5,
-    TRUE ~ NA)
+    ~ (issFamilyQ1+issFamilyQ2+issFamilyQ3+issFamilyQ4+issFamilyQ5)/5)
   )%>%
   
   # Calculate score for friend instrumental social support
   mutate (issFriendScore = case_when(
     !is.na(issFriendQ1)|!is.na(issFriendQ2)|!is.na(issFriendQ3)|!is.na(issFriendQ4)|!is.na(issFriendQ5)
-    ~ (issFriendQ1+issFriendQ2+issFriendQ3+issFriendQ4+issFriendQ5)/5,
-    TRUE ~ NA)
+    ~ (issFriendQ1+issFriendQ2+issFriendQ3+issFriendQ4+issFriendQ5)/5)
   )%>%
   
   # Calculate score for total instrumental social support
   mutate(issTotalScore = case_when(
-    !is.na(issFriendScore)|!is.na(issFamilyScore) ~ (issFamilyScore+issFriendScore)/2,
-    TRUE ~ NA)
+    !is.na(issFriendScore)|!is.na(issFamilyScore) ~ (issFamilyScore+issFriendScore)/2)
   )%>%
   
   # Calculate score for adverse childhood experience
   mutate (aceScore = case_when (
     !is.na(aceQ1)|!is.na(aceQ2)|!is.na(aceQ3)|!is.na(aceQ4)|!is.na(aceQ5)|!is.na(aceQ6)|!is.na(aceQ7)|
       !is.na(aceQ8)|!is.na(aceQ9)|!is.na(aceQ10) ~ 
-      (aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10),
-    TRUE ~ NA)
+      (aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10))
     ) %>%
   
   # Calculate socre for grit
@@ -329,28 +328,29 @@ dataAugmented %>%
   mutate(incomeChange = incomeLastYr - incomeInitial) %>%
   
   # Determine highest education level
-  mutate(educationHighest = max(as.numeric(educationLevels),na.rm = FALSE)) %>%
+  mutate(educationHighest = sapply(strsplit(as.character(educationLevels), split = ","), 
+         function(x) max(as.numeric(x)))) %>%
   
   # Calculate binary variable indicating food insecurity
   mutate(foodInsecurity = case_when(
-    foodSecurityQ1 = 2|foodSecurityQ1 = 3|foodSecurityQ2 = 2|foodSecurityQ2 = 3 ~ 1,
-    foodSecurityQ1 = 1 & foodSecurityQ2 = 1 ~ 0,
-    TRUE ~ 0
-  ))%>%
+    foodSecurityQ1 == 2|foodSecurityQ1 == 3|foodSecurityQ2 == 2|foodSecurityQ2 == 3 ~ 1,
+    foodSecurityQ1 == 1 & foodSecurityQ2 == 1 ~ 0)
+    )%>%
   
   # Calculate binary variable indicating use of any social services
   mutate (programsUsedBinary = case_when(
     is.na(programsUsed) ~ 0,
-    !is.na(programsUsed) ~ 1)) %>%
+    !is.na(programsUsed) ~ 1)
+    ) %>%
   
   # Determine number of public and social services used after release
-  mutate(countServicesAfter = nchar(programsUsed)) %>%
+  mutate(countServicesAfter = count.fields(textConnection(as.character(programsUsed)), sep = ",")) %>%
   
   # Determine number of social services used during incarceration
-  mutate(countHelpDuring = nchar(helpDuring)) %>%
+  mutate(countHelpDuring = count.fields(textConnection(as.character(helpDuringType)), sep = ",")) %>%
   
   # Determine number of social services used after release
-  mutate(countHelpAfter = nchar(helpAfter)) -> dataAugmented
+  mutate(countHelpAfter = count.fields(textConnection(as.character(helpAfterType)), sep = ",")) -> dataAugmented
 ```
 
 ## Select Cases
@@ -484,11 +484,9 @@ aovGroupIncome <- aov(gritScore ~ as.numeric(incomeLastYr), data = groupIncome)
 summary(aovGroupIncome)
 
 # Comparison of `gritScore` for cases grouped by `povertyLevel` using ANOVA
-# Coding for `povertyLevel` (created variable): 1 - above, 0 - below
+# Coding for `povertyLevel` (created variable): 1 - above, 0 - at or below
 dataClean %>%
   mutate(povertyLevel = if (povertyRatio >1) {1} else {0})-> dataClean
-
-dataClean[dataClean==""] <- NA
 
 groupPoverty <- group_by(dataClean, povertyLevel)
 
@@ -502,8 +500,8 @@ groupPoverty %>%
 aovGroupPoverty <- aov(gritScore ~ as.numeric(povertyLevel), data = groupPoverty)
 summary(aovGroupPoverty)
 
-# Comparison of `gritScore` for cases grouped by `financialStatus` using ANOVA
-# Coding for `financialStatus` (Qualitrics Q23): 1 - not able, 2 - just able, 3 - comfortable no savings, 4 - comfortable and saving
+# Comparison of `gritScore` for cases grouped by `managingFinancially` using ANOVA
+# Coding for `managingFinancially` (Qualitrics Q23): 1 - not able, 2 - just able, 3 - comfortable no savings, 4 - comfortable and saving
 groupFinStat <- group_by(dataClean, managingFinancially)
 
 groupFinStat %>%
@@ -530,6 +528,18 @@ groupSavings %>%
 aovGroupSavings <- aov(gritScore ~ as.numeric(savings), data = groupSavings)
 summary(aovGroupSavings)
 ```
+## Comparison of Means for Categorical Variables
+The following code chunk performs comparison of means for select categorical variables of interest.
+```{r chi-square, message = FALSE, warning = FALSE}
+# Null hypothesis: The two variables are independent
+# Alternative hypothesis: The two variables relate to each other
+
+ChiSqr01 <-  chisq.test(dataClean$typeHometown, dataClean$foodInsecure)
+summary(ChiSqr01)
+
+ChiSqr02 <- chisq.test(dataClean$whenHighestEd, dataClean$incomeLastYr)
+summary(ChiSqr02)
+```
 
 ## Perform Correlational Analysis
 The following code chunk performs correlational analysis for the primary variables of interest.
@@ -537,8 +547,8 @@ The following code chunk performs correlational analysis for the primary variabl
 dataClean %>%
   dplyr::select(incomeLastYr, incomeChange, povertyRatio, managingFinancially, savings, programsUsedBinary,
                 countServicesAfter, countHelpDuring, countHelpAfter, educationHighest, ageNow, ageRelease,
-                incarcerationTime, timeReleased, mspssScore, issTotalScore, aceScore, gritScore, 
-                gender, ethnicityRace, typeHometown) -> correlationDataset 
+                incarcerationTime, timeReleased, mspssScore, issTotalScore, aceScore, gritScore 
+                ) -> correlationDataset 
 col_names <- names(correlationDataset)
 correlationDataset[,col_names] <- lapply(correlationDataset[,col_names], as.numeric)
 correlation <- cor(correlationDataset, use="pairwise.complete.obs")
@@ -551,14 +561,16 @@ The following code chunk performs a multiple regression using select variables o
 # Multiple regression using `incomeLastYr` as dependent variable
 regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) +
                          as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issTotalScore +
-                         aceScore + gritScore + gender + ethnicityRace + typeHometown, 
+                         aceScore + gritScore + gender + as.factor(ethnicityRace) + 
+                         as.factor(typeHometown), 
                         data = dataClean, na.action = na.omit)
 summary(regressionIncome)
 
 # Multiple regressiong using `povertyRatio` as dependent variable
 regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) +
                          as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issTotalScore +
-                         aceScore + gritScore + gender + ethnicityRace + typeHometown,  
+                         aceScore + gritScore + gender + as.factor(ethnicityRace) +
+                          as.factor(typeHometown),  
                         data = dataClean, na.action = na.omit)
 summary(regressionPoverty)
 
@@ -566,8 +578,8 @@ summary(regressionPoverty)
 # Multiple regression using `managingFinancially` as dependent variable
 regressionFinStat <- lm(as.numeric(managingFinancially) ~ as.numeric(programsUsedBinary) + 
                           as.numeric(ageNow) + as.numeric(ageRelease) + as.numeric(timeReleased) + 
-                          mspssScore + issTotalScore + aceScore + gritScore + gender + ethnicityRace +
-                          typeHometown,  
+                          mspssScore + issTotalScore + aceScore + gritScore + gender + 
+                          as.factor(ethnicityRace) + as.factor(typeHometown),  
                         data = dataClean, na.action = na.omit)
 summary(regressionFinStat)
 
