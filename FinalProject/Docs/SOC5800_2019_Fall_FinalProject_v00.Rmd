@@ -46,7 +46,6 @@ library(pscl) # contains function for pseudo R2 measures for logistic regression
 library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test
 library(psy) # functions for various procedures used in psychometry
 library(psych) # Procedures for Psychological, Psychometric, and Personality Research
-library(taRifx) # Collection of utility and convenience functions
 ```
 
 ## Load Raw Data
@@ -361,7 +360,7 @@ dataAugmented %>%
   subset(currentlyDetained=2) %>%
   subset(residentialTreatment=2) %>%
   subset(involCommitment=2) %>%
-  distinct()-> dataClean
+  dplyr::distinct(.,.keep_all = TRUE) -> dataClean
 ```
 
 ## Evaluate Missing Data
@@ -379,32 +378,32 @@ nrow(dataClean)
 
 print("gender; 1 - male, 2 - female, 3 - other, 4 - undisclosed")
 table(as.numeric(dataClean$gender))
-percentages(as.numeric(dataClean$gender))
+prop.table(as.numeric(dataClean$gender), margin = NULL)
 
 print("ethnicityRace; 1 - East Asian, 2 - Central Asian, 3 - Southern Asian, 4 - Black or African-American,
       5 - Hispanic or Latino, 6 - Middle Eastern or North African, 7 - Native American or Alaska,
       8 - Native Hawaiian or Pacific Islander, 9 - White or European, 10 - Other")
 table(as.numeric(dataClean$ethnicityRace))
-percentages(as.numeric(dataClean$ethnicityRace))
+prop.table(as.numeric(dataClean$ethnicityRace), margin = NULL)
 
 print("religiousAffiliation; 1 - Atheism, 2 - Agnoticism, 3 - Buddhist, 4 - Eastern Orthodox, 5 - Hindu,
       6 - Islam, 7 - Jewish, 8 - Latter Day Saints, 9 - Non-denominational, 10 - Protestant,
       11 - Roman Catholic, 12 - Other, 13 - prefer not to answer")
 table(as.numeric(dataClean$religousAffiliation))
-percentages(as.numeric(dataClean$religiousAffiliation))
+prop.table(as.numeric(dataClean$religiousAffiliation), margin = NULL)
 
 print("educationLevels; 1 - high schoor or GED, 2 - trade school, 3 - some college, 4 - associate,
       5 - bachelor, 6 - master, 7 - doctorate")
 table(as.numeric(dataClean$educationLevels))
-percentages(as.numeric(dataClean$educationLevels))
+prop.table(as.numeric(dataClean$educationLevels), margin = NULL)
 
 print("whenHighestEd; 1 - before, 2 - during, 3 - after")
 table(as.numeric(dataClean$whenHighestEd))
-percentages(as.numeric(dataClean$whenHighestEd))
+prop.table(as.numeric(dataClean$whenHighestEd), margin = NULL)
 
 print("typeHometown; 1 - rural, 2 - suburban, 3 - urban")
 table(as.numeric(dataClean$typeHometown))
-percentages(as.numeric(dataClean$typeHometown))
+prop.table(as.numeric(dataClean$typeHometown), mmargin = NULL)
 
 print("ageNow; ratio data (years)")
 describe(as.numeric(dataClean$ageNow), na.rm = TRUE)
@@ -417,19 +416,19 @@ summary(as.numeric(dataClean$incarcerationTime))
 
 print("incomeInitial; ordinal data")
 table(as.numeric(dataClean$incomeInitial))
-percentages(as.numeric(dataClean$incomeInitial))
+prop.table(as.numeric(dataClean$incomeInitial), margin = NULL)
 
 print("incomeLastYr; ordinal data")
 table(as.numeric(dataClean$incomeLastYr))
-percentages(as.numeric(dataClean$incomeLastYr))
+prop.table(as.numeric(dataClean$incomeLastYr), margin = NULL)
 
 print("selfEmployment; 1 - 0%, 2 - 1-25%, 3 - 26-50%, 4 - 51-75%, 5 - 75-99%, 6 - 100%")
 table(as.numeric(dataClean$selfEmployment))
-percentages(as.numeric(dataClean$selfEmployment))
+prop.table(as.numeric(dataClean$selfEmployment), margin = NULL)
 
 print("foodInsecurity; 1 - yes, 0 - no")
 table(as.number(dataClean$foodInsecurity))
-percentages(as.numeric(dataClean$foodInsecurity))
+prop.table(as.numeric(dataClean$foodInsecurity), margin = NULL)
 ```
 
 ## Compute Scale Reliabilities
