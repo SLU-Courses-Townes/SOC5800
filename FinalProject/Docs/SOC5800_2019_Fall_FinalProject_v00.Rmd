@@ -377,33 +377,45 @@ print("Number of cases")
 nrow(dataClean)
 
 print("gender; 1 - male, 2 - female, 3 - other, 4 - undisclosed")
+print("values")
 table(as.numeric(dataClean$gender))
-prop.table(as.numeric(dataClean$gender), margin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$gender)), margin = NULL)
 
 print("ethnicityRace; 1 - East Asian, 2 - Central Asian, 3 - Southern Asian, 4 - Black or African-American,
       5 - Hispanic or Latino, 6 - Middle Eastern or North African, 7 - Native American or Alaska,
       8 - Native Hawaiian or Pacific Islander, 9 - White or European, 10 - Other")
+print("values")
 table(as.numeric(dataClean$ethnicityRace))
-prop.table(as.numeric(dataClean$ethnicityRace), margin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$ethnicityRace)), margin = NULL)
 
 print("religiousAffiliation; 1 - Atheism, 2 - Agnoticism, 3 - Buddhist, 4 - Eastern Orthodox, 5 - Hindu,
       6 - Islam, 7 - Jewish, 8 - Latter Day Saints, 9 - Non-denominational, 10 - Protestant,
       11 - Roman Catholic, 12 - Other, 13 - prefer not to answer")
+print("values")
 table(as.numeric(dataClean$religousAffiliation))
-prop.table(as.numeric(dataClean$religiousAffiliation), margin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$religiousAffiliation)), margin = NULL)
 
 print("educationLevels; 1 - high schoor or GED, 2 - trade school, 3 - some college, 4 - associate,
       5 - bachelor, 6 - master, 7 - doctorate")
+print("values")
 table(as.numeric(dataClean$educationLevels))
-prop.table(as.numeric(dataClean$educationLevels), margin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$educationLevels)), margin = NULL)
 
 print("whenHighestEd; 1 - before, 2 - during, 3 - after")
+print("values")
 table(as.numeric(dataClean$whenHighestEd))
-prop.table(as.numeric(dataClean$whenHighestEd), margin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$whenHighestEd)), margin = NULL)
 
 print("typeHometown; 1 - rural, 2 - suburban, 3 - urban")
+print("values")
 table(as.numeric(dataClean$typeHometown))
-prop.table(as.numeric(dataClean$typeHometown), mmargin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$typeHometown)), margin = NULL)
 
 print("ageNow; ratio data (years)")
 describe(as.numeric(dataClean$ageNow), na.rm = TRUE)
@@ -415,20 +427,28 @@ print("incarcerationTime; ratio data (months)")
 summary(as.numeric(dataClean$incarcerationTime))
 
 print("incomeInitial; ordinal data")
+print("values")
 table(as.numeric(dataClean$incomeInitial))
-prop.table(as.numeric(dataClean$incomeInitial), margin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$incomeInitial)), margin = NULL)
 
 print("incomeLastYr; ordinal data")
+print("values")
 table(as.numeric(dataClean$incomeLastYr))
-prop.table(as.numeric(dataClean$incomeLastYr), margin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$incomeLastYr)), margin = NULL)
 
 print("selfEmployment; 1 - 0%, 2 - 1-25%, 3 - 26-50%, 4 - 51-75%, 5 - 75-99%, 6 - 100%")
+print("values")
 table(as.numeric(dataClean$selfEmployment))
-prop.table(as.numeric(dataClean$selfEmployment), margin = NULL)
+print("proportions")
+prop.table(table(as.numeric(dataClean$selfEmployment)), margin = NULL)
 
 print("foodInsecurity; 1 - yes, 0 - no")
-table(as.number(dataClean$foodInsecurity))
-prop.table(as.numeric(dataClean$foodInsecurity), margin = NULL)
+print("values")
+table(as.numeric(dataClean$foodInsecurity))
+print("proportions")
+prop.table(table(as.numeric(dataClean$foodInsecurity)), margin = NULL)
 ```
 
 ## Compute Scale Reliabilities
@@ -533,11 +553,13 @@ The following code chunk performs comparison of means for select categorical var
 # Null hypothesis: The two variables are independent
 # Alternative hypothesis: The two variables relate to each other
 
-ChiSqr01 <-  chisq.test(dataClean$typeHometown, dataClean$foodInsecure)
-summary(ChiSqr01)
+print("`typeHometown` and `foodInsecurity`")
+ChiSqr01 <-  chisq.test(dataClean$typeHometown, dataClean$foodInsecurity)
+ChiSqr01
 
+print("`whenHighestEd` and `incomeLastYr`")
 ChiSqr02 <- chisq.test(dataClean$whenHighestEd, dataClean$incomeLastYr)
-summary(ChiSqr02)
+ChiSqr02
 ```
 
 ## Perform Correlational Analysis
@@ -586,7 +608,7 @@ summary(regressionFinStat)
 # Binary logistic regression using `savings` as dependent variable
 # Prepare data
 dataClean %>%
-  dplyr::select(incomeLastYr, povertyRatio, povertyLevel, financialStatus, savings, programsUsedBinary, 
+  dplyr::select(incomeLastYr, povertyRatio, povertyLevel, managingFinancially, savings, programsUsedBinary, 
                 ageNow, ageRelease, mspssScore, issTotalScore, aceScore, gritScore) -> dataBinary
 
 # Remove cases with missing data in the `savings` variable
