@@ -254,6 +254,29 @@ dataAugmented[dataAugmented==""] <- NA
 The following code chunk creates additional variables needed for the study.
 ```{r scales, message = FALSE, warning = FALSE}
 dataAugmented %>%
+  # Create variable to consolidate `ethnicityRace` classifications
+  # Coding: 1 - black, 2 - white, 3 - other
+  mutate(ethnicityRaceGrouped = case_when(
+    ethnicityRace == 4 ~ 1,
+    ethnicityRace == 9 ~ 2,
+    TRUE ~ 3)
+  ) %>%
+  
+  # Create variable to consolidate `religiousAffiliation`
+  # Coding: 1 - religious or spiritual, 2 - not religious or spiritual, 3 - prefer not to say
+  mutate(religiousAffilGrouped = case_when(
+    between (religiousAffiliation, 3, 11) | religiousAffiliation==12 ~ 1,
+    between (religiousAffiliation, 1, 2) ~ 2,
+    religiousAffiliation == 13 ~ 13)
+    ) %>%
+  
+  # Create variable to consolidate `typeHometown`
+  # Coding: 1 - less than or equal to 50,000; 2 - greater than 50,000
+  mutate(typeHometownGrouped = case_when(
+    between (typeHometown, 1, 2) ~ 1,
+    typeHometown == 3 ~ 2)
+    ) %>%
+  
   # Calculate score for multidimensional scale for percieved social support
   mutate (mspssScore = case_when(
     !is.na(pssQ1) & !is.na(pssQ2) & !is.na(pssQ3) & !is.na(pssQ4) & !is.na(pssQ5) & !is.na(pssQ6) & !is.na(pssQ7) &
@@ -299,7 +322,7 @@ dataAugmented %>%
   # Calculate total time released
   mutate (timeReleased = ageNow - ageRelease) %>%
   
-  # Impute 1 for `NA` in `selfEmployment` variable
+  # Impute 1 (coding for 0%) for `NA` in `selfEmployment` variable
   mutate (selfEmployment = case_when(
     is.na(selfEmployment) ~ 1)
     )%>%
