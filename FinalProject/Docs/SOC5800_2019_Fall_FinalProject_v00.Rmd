@@ -256,40 +256,40 @@ The following code chunk creates additional variables needed for the study.
 dataAugmented %>%
   # Calculate score for multidimensional scale for percieved social support
   mutate (mspssScore = case_when(
-    !is.na(pssQ1)|!is.na(pssQ2)|!is.na(pssQ3)|!is.na(pssQ4)|!is.na(pssQ5)|!is.na(pssQ6)|!is.na(pssQ7)|
-      !is.na(pssQ8)|!is.na(pssQ9)|!is.na(pssQ10)|!is.na(pssQ11)|!is.na(pssQ12) ~
+    !is.na(pssQ1) & !is.na(pssQ2) & !is.na(pssQ3) & !is.na(pssQ4) & !is.na(pssQ5) & !is.na(pssQ6) & !is.na(pssQ7) &
+      !is.na(pssQ8) & !is.na(pssQ9) & !is.na(pssQ10) & !is.na(pssQ11) & !is.na(pssQ12) ~
       (pssQ1+pssQ2+pssQ3+pssQ4+pssQ5+pssQ6+pssQ7+pssQ8+pssQ9+pssQ10+pssQ11+pssQ12)/12)
     )%>%
   
   # Calculate score for family instrumental social support
   mutate (issFamilyScore = case_when(
-    !is.na(issFamilyQ1)|!is.na(issFamilyQ2)|!is.na(issFamilyQ3)|!is.na(issFamilyQ4)|!is.na(issFamilyQ5)
+    !is.na(issFamilyQ1) & !is.na(issFamilyQ2) & !is.na(issFamilyQ3) & !is.na(issFamilyQ4) & !is.na(issFamilyQ5)
     ~ (issFamilyQ1+issFamilyQ2+issFamilyQ3+issFamilyQ4+issFamilyQ5)/5)
   )%>%
   
   # Calculate score for friend instrumental social support
   mutate (issFriendScore = case_when(
-    !is.na(issFriendQ1)|!is.na(issFriendQ2)|!is.na(issFriendQ3)|!is.na(issFriendQ4)|!is.na(issFriendQ5)
+    !is.na(issFriendQ1) & !is.na(issFriendQ2) & !is.na(issFriendQ3) & !is.na(issFriendQ4) & !is.na(issFriendQ5)
     ~ (issFriendQ1+issFriendQ2+issFriendQ3+issFriendQ4+issFriendQ5)/5)
   )%>%
   
   # Calculate score for total instrumental social support
-  mutate(issTotalScore = case_when(
-    !is.na(issFriendScore)|!is.na(issFamilyScore) ~ (issFamilyScore+issFriendScore)/2)
+  mutate(issScore = case_when(
+    !is.na(issFriendScore) & !is.na(issFamilyScore) ~ (issFamilyScore+issFriendScore)/2)
   )%>%
   
   # Calculate score for adverse childhood experience
   mutate (aceScore = case_when (
-    !is.na(aceQ1)|!is.na(aceQ2)|!is.na(aceQ3)|!is.na(aceQ4)|!is.na(aceQ5)|!is.na(aceQ6)|!is.na(aceQ7)|
-      !is.na(aceQ8)|!is.na(aceQ9)|!is.na(aceQ10) ~ 
+    !is.na(aceQ1) & !is.na(aceQ2) & !is.na(aceQ3) & !is.na(aceQ4) & !is.na(aceQ5) & !is.na(aceQ6) & !is.na(aceQ7) &
+      !is.na(aceQ8) & !is.na(aceQ9) & !is.na(aceQ10) ~ 
       (aceQ1+aceQ1+aceQ2+aceQ3+aceQ4+aceQ5+aceQ6+aceQ7+aceQ8+aceQ9+aceQ10))
     ) %>%
   
   # Calculate socre for grit
   mutate (gritQ1R = 6-gritQ1, gritQ3R = 6-gritQ3, gritQ5R = 6-gritQ5, gritQ6R = 6-gritQ6) %>%
   mutate (gritScore = case_when(
-    !is.na(gritQ1R)|!is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2)|
-      !is.na(gritQ2)|!is.na(gritQ2)|!is.na(gritQ2) ~ 
+    !is.na(gritQ1R) & !is.na(gritQ2) & !is.na(gritQ3R) & !is.na(gritQ4) & !is.na(gritQ5R) &
+      !is.na(gritQ6R) & !is.na(gritQ7) & !is.na(gritQ8) ~ 
       ((gritQ1R+gritQ2+gritQ3R+gritQ4+gritQ5R+gritQ6R+gritQ7+gritQ8)/8)
     ))%>%
   
@@ -360,6 +360,7 @@ dataAugmented %>%
 ## Select Cases
 The following code chunk removes cases where the respondent was part of a protected population or did not provide informed consent. The original data for the variables was not recoded. It then removes duplicate cases.
 ```{r select-cases, message = FALSE, warning = FALSE}
+# Case 2 (responseID R_3ea7BOzjDjNiJYr) and Case 15 (responseID R_1ouyBTWoxJv4FkS) are the same.  Remove case 2 in the final analysis.
 dataAugmented %>%
   subset(currentlyIncarcerated=2) %>%
   subset(currentlyDetained=2) %>%
@@ -463,10 +464,10 @@ reliabilityMSPSS <- cronbach (subset(dataClean, select=c(pssQ1, pssQ2, pssQ3, ps
 print("Reliability for MSPSS")
 reliabilityMSPSS
 
-reliabilityISSTotal <- cronbach (subset(dataClean, select=c(issFamilyQ1, issFamilyQ2, issFamilyQ3, issFamilyQ4, issFamilyQ5, 
+reliabilityISS <- cronbach (subset(dataClean, select=c(issFamilyQ1, issFamilyQ2, issFamilyQ3, issFamilyQ4, issFamilyQ5, 
                                                             issFriendQ1, issFriendQ2, issFriendQ3, issFriendQ4, issFriendQ5)))
 print("Reliability for Total Instrumental Social Support")
-reliabilityISSfamily
+reliabilityISS
 
 reliabilityISSfamily <- cronbach (subset(dataClean, select=c(issFamilyQ1, issFamilyQ2, issFamilyQ3, issFamilyQ4, issFamilyQ5)))
 print("Reliability for Family Instrumental Social Support")
@@ -578,7 +579,7 @@ The following code chunk performs correlational analysis for the primary variabl
 dataClean %>%
   dplyr::select(incomeLastYr, incomeChange, povertyRatio, managingFinancially, savings, programsUsedBinary,
                 countServicesAfter, countHelpDuring, countHelpAfter, educationHighest, ageNow, ageRelease,
-                incarcerationTime, timeReleased, mspssScore, issTotalScore, aceScore, gritScore 
+                incarcerationTime, timeReleased, mspssScore, issScore, aceScore, gritScore 
                 ) -> correlationDataset 
 col_names <- names(correlationDataset)
 correlationDataset[,col_names] <- lapply(correlationDataset[,col_names], as.numeric)
@@ -591,21 +592,21 @@ The following code chunk performs a multiple regression using select variables o
 ```{r regression, message = FALSE, warning = FALSE}
 # Multiple regression using `incomeLastYr` as dependent variable
 regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
-                         as.numeric(ageNow) + as.numeric(timeReleased) + mspssScore + issTotalScore + aceScore + gritScore + 
+                         as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issScore + aceScore + gritScore + 
                          gender + as.factor(ethnicityRace) + as.factor(typeHometown), 
                         data = dataClean, na.action = na.omit)
 summary(regressionIncome)
 
 # Multiple regression using `incomeRelease` as dependent variable
 regressionIncomeInitial <- lm(as.numeric(incomeInitial) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
-                         as.numeric(ageNow) + as.numeric(timeReleased) + mspssScore + issTotalScore + aceScore + gritScore + 
+                         as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issScore + aceScore + gritScore + 
                          gender + as.factor(ethnicityRace) + as.factor(typeHometown), 
                         data = dataClean, na.action = na.omit)
 summary(regressionIncomeInitial)
 
 # Multiple regressiong using `povertyRatio` as dependent variable
 regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
-                          as.numeric(ageNow) + as.numeric(timeReleased) + mspssScore + issTotalScore + aceScore + gritScore + 
+                          as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issScore + aceScore + gritScore + 
                           gender + as.factor(ethnicityRace) + as.factor(typeHometown),  
                         data = dataClean, na.action = na.omit)
 summary(regressionPoverty)
@@ -613,7 +614,7 @@ summary(regressionPoverty)
 
 # Multiple regression using `managingFinancially` as dependent variable
 regressionFinStat <- lm(as.numeric(managingFinancially) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
-                          as.numeric(ageNow) + as.numeric(timeReleased) + mspssScore + issTotalScore + aceScore + gritScore + 
+                          as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issScore + aceScore + gritScore + 
                           gender + as.factor(ethnicityRace) + as.factor(typeHometown),  
                         data = dataClean, na.action = na.omit)
 summary(regressionFinStat)
@@ -623,14 +624,14 @@ summary(regressionFinStat)
 # Select variables
 dataClean %>%
   dplyr::select(incomeLastYr, povertyRatio, povertyLevel, managingFinancially, savings, programsUsedBinary, educationHighest, 
-                ageNow, timeReleased, gender, mspssScore, issTotalScore, aceScore, gritScore) -> dataBinary
+                ageRelease, timeReleased, gender, mspssScore, issScore, aceScore, gritScore) -> dataBinary
 
 # Remove cases with missing data
 dataBinary %>%
   drop_na() -> dataBinary
 
-logitSavings <- glm(savings ~ programsUsedBinary + managingFinancially + educationHighest + ageNow + timeReleased + 
-                      mspssScore + issTotalScore + aceScore + gritScore + gender, 
+logitSavings <- glm(savings ~ programsUsedBinary + managingFinancially + educationHighest + ageRelease + timeReleased + 
+                      mspssScore + issScore + aceScore + gritScore + gender, 
                      data = dataBinary, family = binomial, na.action = na.omit)
 summary(logitSavings)
 
