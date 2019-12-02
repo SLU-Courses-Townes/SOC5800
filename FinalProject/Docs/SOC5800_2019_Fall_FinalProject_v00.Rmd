@@ -299,6 +299,11 @@ dataAugmented %>%
   # Calculate total time released
   mutate (timeReleased = ageNow - ageRelease) %>%
   
+  # Impute 1 for `NA` in `selfEmployment` variable
+  mutate (selfEmployment = case_when(
+    is.na(selfEmployment) ~ 1)
+    )%>%
+  
   # Calculate interval variable for poverty ratio
   mutate (povertyRatio = if(as.numeric(incomeLastYr) <= 6) {
     (12490+((as.numeric(incomeLastYr)-1))*4420)/(8070+(as.numeric(householdSize)*4420))
@@ -458,6 +463,11 @@ reliabilityMSPSS <- cronbach (subset(dataClean, select=c(pssQ1, pssQ2, pssQ3, ps
 print("Reliability for MSPSS")
 reliabilityMSPSS
 
+reliabilityISSTotal <- cronbach (subset(dataClean, select=c(issFamilyQ1, issFamilyQ2, issFamilyQ3, issFamilyQ4, issFamilyQ5, 
+                                                            issFriendQ1, issFriendQ2, issFriendQ3, issFriendQ4, issFriendQ5)))
+print("Reliability for Total Instrumental Social Support")
+reliabilityISSfamily
+
 reliabilityISSfamily <- cronbach (subset(dataClean, select=c(issFamilyQ1, issFamilyQ2, issFamilyQ3, issFamilyQ4, issFamilyQ5)))
 print("Reliability for Family Instrumental Social Support")
 reliabilityISSfamily
@@ -580,43 +590,47 @@ correlation
 The following code chunk performs a multiple regression using select variables of interest.
 ```{r regression, message = FALSE, warning = FALSE}
 # Multiple regression using `incomeLastYr` as dependent variable
-regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) +
-                         as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issTotalScore +
-                         aceScore + gritScore + gender + as.factor(ethnicityRace) + 
-                         as.factor(typeHometown), 
+regressionIncome <- lm(as.numeric(incomeLastYr) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
+                         as.numeric(ageNow) + as.numeric(timeReleased) + mspssScore + issTotalScore + aceScore + gritScore + 
+                         gender + as.factor(ethnicityRace) + as.factor(typeHometown), 
                         data = dataClean, na.action = na.omit)
 summary(regressionIncome)
 
+# Multiple regression using `incomeRelease` as dependent variable
+regressionIncomeInitial <- lm(as.numeric(incomeInitial) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
+                         as.numeric(ageNow) + as.numeric(timeReleased) + mspssScore + issTotalScore + aceScore + gritScore + 
+                         gender + as.factor(ethnicityRace) + as.factor(typeHometown), 
+                        data = dataClean, na.action = na.omit)
+summary(regressionIncomeInitial)
+
 # Multiple regressiong using `povertyRatio` as dependent variable
-regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + as.numeric(ageNow) +
-                         as.numeric(ageRelease) + as.numeric(timeReleased) + mspssScore + issTotalScore +
-                         aceScore + gritScore + gender + as.factor(ethnicityRace) +
-                          as.factor(typeHometown),  
+regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
+                          as.numeric(ageNow) + as.numeric(timeReleased) + mspssScore + issTotalScore + aceScore + gritScore + 
+                          gender + as.factor(ethnicityRace) + as.factor(typeHometown),  
                         data = dataClean, na.action = na.omit)
 summary(regressionPoverty)
 
 
 # Multiple regression using `managingFinancially` as dependent variable
-regressionFinStat <- lm(as.numeric(managingFinancially) ~ as.numeric(programsUsedBinary) + 
-                          as.numeric(ageNow) + as.numeric(ageRelease) + as.numeric(timeReleased) + 
-                          mspssScore + issTotalScore + aceScore + gritScore + gender + 
-                          as.factor(ethnicityRace) + as.factor(typeHometown),  
+regressionFinStat <- lm(as.numeric(managingFinancially) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
+                          as.numeric(ageNow) + as.numeric(timeReleased) + mspssScore + issTotalScore + aceScore + gritScore + 
+                          gender + as.factor(ethnicityRace) + as.factor(typeHometown),  
                         data = dataClean, na.action = na.omit)
 summary(regressionFinStat)
 
 
 # Binary logistic regression using `savings` as dependent variable
-# Prepare data
+# Select variables
 dataClean %>%
-  dplyr::select(incomeLastYr, povertyRatio, povertyLevel, managingFinancially, savings, programsUsedBinary, 
-                ageNow, ageRelease, mspssScore, issTotalScore, aceScore, gritScore) -> dataBinary
+  dplyr::select(incomeLastYr, povertyRatio, povertyLevel, managingFinancially, savings, programsUsedBinary, educationHighest, 
+                ageNow, timeReleased, gender, mspssScore, issTotalScore, aceScore, gritScore) -> dataBinary
 
-# Remove cases with missing data in the `savings` variable
+# Remove cases with missing data
 dataBinary %>%
   drop_na() -> dataBinary
 
-logitSavings <- glm(savings ~ programsUsedBinary + ageNow + ageRelease + mspssScore + issTotalScore + 
-                      aceScore + gritScore, 
+logitSavings <- glm(savings ~ programsUsedBinary + managingFinancially + educationHighest + ageNow + timeReleased + 
+                      mspssScore + issTotalScore + aceScore + gritScore + gender, 
                      data = dataBinary, family = binomial, na.action = na.omit)
 summary(logitSavings)
 
