@@ -265,9 +265,9 @@ dataAugmented %>%
   # Create variable to consolidate `religiousAffiliation`
   # Coding: 1 - religious or spiritual, 2 - not religious or spiritual, 3 - prefer not to say
   mutate(religiousAffilGrouped = case_when(
-    between (religiousAffiliation, 3, 11) | religiousAffiliation==12 ~ 1,
+    between (religiousAffiliation, 3, 12) ~ 1,
     between (religiousAffiliation, 1, 2) ~ 2,
-    religiousAffiliation == 13 ~ 13)
+    religiousAffiliation == 13 ~ 3)
     ) %>%
   
   # Create variable to consolidate `typeHometown`
