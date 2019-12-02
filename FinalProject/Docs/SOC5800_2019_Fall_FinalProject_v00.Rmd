@@ -480,6 +480,10 @@ print("values")
 table(as.numeric(dataClean$foodInsecurity))
 print("proportions")
 prop.table(table(as.numeric(dataClean$foodInsecurity)), margin = NULL)
+
+# count the number of responses to `helpKind` (Qualtrics open-ended question 40)
+print("Number of respondents that answered Q40")
+sum(!is.na(dataClean$helpKind))
 ```
 
 ## Compute Scale Reliabilities
