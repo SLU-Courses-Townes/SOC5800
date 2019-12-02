@@ -383,13 +383,15 @@ dataAugmented %>%
 ## Select Cases
 The following code chunk removes cases where the respondent was part of a protected population or did not provide informed consent. The original data for the variables was not recoded. It then removes duplicate cases.
 ```{r select-cases, message = FALSE, warning = FALSE}
-# Case 2 (responseID R_3ea7BOzjDjNiJYr) and Case 15 (responseID R_1ouyBTWoxJv4FkS) are the same.  Remove case 2 in the final analysis.
 dataAugmented %>%
   subset(currentlyIncarcerated=2) %>%
   subset(currentlyDetained=2) %>%
   subset(residentialTreatment=2) %>%
   subset(involCommitment=2) %>%
   dplyr::distinct(.,.keep_all = TRUE) -> dataClean
+
+# Case 2 (responseID R_3ea7BOzjDjNiJYr) and Case 15 (responseID R_1ouyBTWoxJv4FkS) are the same.  Remove case 2 for the final analysis.
+dataClean <- dataClean[-c(2),]
 ```
 
 ## Evaluate Missing Data
