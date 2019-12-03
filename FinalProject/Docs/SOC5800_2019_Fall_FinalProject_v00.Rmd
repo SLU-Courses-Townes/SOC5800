@@ -230,21 +230,6 @@ dataAugmented %>%
   mutate(savings = ifelse (savings == 1,1,0)) %>%
   mutate(helpDuring = ifelse(helpDuring == 1,1,0)) %>%
   mutate(helpAfter = ifelse(helpAfter == 1,1,0)) -> dataAugmented
-#  mutate(savings = case_when(
-#    as.numeric(savings) == 1 ~ 1,
-#    as.numeric(savings) == 2 ~ 0,
-#    TRUE ~ savings)
-#  )%>%
-#  mutate(helpDuring = case_when(
-#    as.numeric(helpDuring) == 1 ~ 1,
-#    as.numeric(helpDuring) == 2 ~ 0,
-#    TRUE ~ helpDuring)
-#  )%>%
-#  mutate(helpAfter = case_when(
-#    as.numeric(helpDuring) == 1 ~ 1,
-#    as.numeric(helpDuring) == 2 ~ 0,
-#    TRUE ~ helpAfter)
-#    )-> dataAugmented
 
 # Recode instances of missing data with `NA`
 dataAugmented[dataAugmented==""] <- NA
@@ -285,20 +270,20 @@ dataAugmented %>%
     )%>%
   
   # Calculate score for family instrumental social support
-  mutate (issFamilyScore = case_when(
+  mutate (issScoreFamily = case_when(
     !is.na(issFamilyQ1) & !is.na(issFamilyQ2) & !is.na(issFamilyQ3) & !is.na(issFamilyQ4) & !is.na(issFamilyQ5)
     ~ (issFamilyQ1+issFamilyQ2+issFamilyQ3+issFamilyQ4+issFamilyQ5)/5)
   )%>%
   
   # Calculate score for friend instrumental social support
-  mutate (issFriendScore = case_when(
+  mutate (issScoreFriend = case_when(
     !is.na(issFriendQ1) & !is.na(issFriendQ2) & !is.na(issFriendQ3) & !is.na(issFriendQ4) & !is.na(issFriendQ5)
     ~ (issFriendQ1+issFriendQ2+issFriendQ3+issFriendQ4+issFriendQ5)/5)
   )%>%
   
   # Calculate score for total instrumental social support
   mutate(issScore = case_when(
-    !is.na(issFriendScore) & !is.na(issFamilyScore) ~ (issFamilyScore+issFriendScore)/2)
+    !is.na(issScoreFamily) & !is.na(issScoreFriend) ~ (issScoreFamily+issScoreFriend)/2)
   )%>%
   
   # Calculate score for adverse childhood experience
@@ -632,6 +617,13 @@ regressionIncomeInitial <- lm(as.numeric(incomeInitial) ~ as.numeric(programsUse
                          gender + as.factor(ethnicityRace) + as.factor(typeHometown), 
                         data = dataClean, na.action = na.omit)
 summary(regressionIncomeInitial)
+
+# Multiple regressiong using `povertyRatio` as dependent variable and original independent variables
+regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + as.numeric(ageRelease) + 
+                          as.numeric(timeReleased) + mspssScore + issScore + aceScore + gritScore + 
+                          gender + as.factor(ethnicityRace) + as.factor(typeHometown),  
+                        data = dataClean, na.action = na.omit)
+summary(regressionPoverty)
 
 # Multiple regressiong using `povertyRatio` as dependent variable
 regressionPoverty <- lm(as.numeric(povertyRatio) ~ as.numeric(programsUsedBinary) + as.numeric(educationHighest) +
