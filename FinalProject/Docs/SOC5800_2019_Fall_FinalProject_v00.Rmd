@@ -46,6 +46,7 @@ library(pscl) # contains function for pseudo R2 measures for logistic regression
 library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test
 library(psy) # functions for various procedures used in psychometry
 library(psych) # Procedures for Psychological, Psychometric, and Personality Research
+library(Hmisc) # Harrell miscellaneous
 ```
 
 ## Load Raw Data
@@ -597,7 +598,8 @@ dataClean %>%
                 ) -> correlationDataset 
 col_names <- names(correlationDataset)
 correlationDataset[,col_names] <- lapply(correlationDataset[,col_names], as.numeric)
-correlation <- cor(correlationDataset, use="pairwise.complete.obs")
+# correlation <- cor(correlationDataset, use="pairwise.complete.obs")
+correlation <- rcorr(as.matrix(correlationDataset), type="pearson")
 correlation
 ```
 
