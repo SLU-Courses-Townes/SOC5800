@@ -598,9 +598,12 @@ dataClean %>%
                 ) -> correlationDataset 
 col_names <- names(correlationDataset)
 correlationDataset[,col_names] <- lapply(correlationDataset[,col_names], as.numeric)
-# correlation <- cor(correlationDataset, use="pairwise.complete.obs")
-correlation <- rcorr(as.matrix(correlationDataset), type="pearson")
-correlation
+print("Calculate correlations using `cor` function.")
+correlation01 <- cor(correlationDataset, use="pairwise.complete.obs")
+correlation01
+print("Calculate correlations using `rcorr` function.")
+correlation02 <- rcorr(as.matrix(correlationDataset), type="pearson")
+correlation02
 ```
 
 ## Perform Regression Analysis
