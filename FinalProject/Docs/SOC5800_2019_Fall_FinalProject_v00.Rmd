@@ -23,30 +23,34 @@ knitr::opts_knit$set(root.dir = here::here())
 ## Load Dependencies
 The following code chunk loads package dependencies required to perform the necessary tasks. Basic tasks include importing, reading, wrangling, and cleaning data; selecting a subset of the data; checking for unique observations; analyzing missing data; and performing various types of regression analyses. 
 ```{r load-dependencies, message = FALSE, warning = FALSE}
+# Standard packages
 library(tidyverse) # loads the basic R packages
-library(here) # enables file portability
-library(readr) # functions for reading data
 library(dplyr) # functions for data wrangling
+library(here) # enables file portability
+library(ggplot2) # functions for data visualizations
 library(janitor) # functions for data cleaning
 library(naniar) # functions for analyzing missing data
-library(expss) # functions for calculating on values
-library(ggplot2) # functions for data visualizations
+library(readr) # functions for reading data
+
+# Specialized packages
+library(aod) # functions to analyze overdispersed data counts and proportions
 library(boot) # functions for regression analysis
-library(generalhoslem) # Hosmer-Lemeshow test for binary and multinomial logistic models
-library(ordinal) # functions for regression models for ordinal data
-library(MASS) # functions for ordered logistic or probit regression
 library(broom) # functions for tidying ordinal logistic regression models
+library(car) # companion to applied regression
+library(cluster) # functions for cluster analysis
+library(expss) # functions for calculating on values
+library(generalhoslem) # Hosmer-Lemeshow test for binary and multinomial logistic models
 library(gvlma) # functions for global validation of linear model assumptions
+library(Hmisc) # Harrell miscellaneous
+library(leaps) # functions for regression subset selection
 library(lmtest) # functions for testing linear regression models
 library(ltm) # functions for latent trait models under Item Response Theory
-library(leaps) # functions for regression subset selection
-library(car) # companion to applied regression
-library(aod) # functions to analyze overdispersed data counts and proportions
+library(MASS) # functions for ordered logistic or probit regression
+library(ordinal) # functions for regression models for ordinal data
 library(pscl) # contains function for pseudo R2 measures for logistic regression
-library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test
 library(psy) # functions for various procedures used in psychometry
 library(psych) # Procedures for Psychological, Psychometric, and Personality Research
-library(Hmisc) # Harrell miscellaneous
+library(ResourceSelection) # contains function for Hosmer-Lemeshow goodness of fit test
 ```
 
 ## Load Raw Data
@@ -573,6 +577,15 @@ groupSavings %>%
 aovGroupSavings <- aov(gritScore ~ as.numeric(savings), data = groupSavings)
 summary(aovGroupSavings)
 ```
+
+## Perform T-test
+The following code chunk performs a series of T-tests for comparing two variables.
+```{r t-tests}
+# T-tests using `gritScore` as the interval variable and `savings` as the binary variable
+t.text(gritScore ~ savings, data=dataClean, y=NULL, subset=NULL, alternative=c("two.sided"), mu=0, paired=FALSE, 
+       var.equal=FALSE, conf.level=0.95, na.action=na.omit)
+```
+
 ## Comparison of Means for Categorical Variables
 The following code chunk performs comparison of means for select categorical variables of interest.
 ```{r chi-square, message = FALSE, warning = FALSE}
@@ -677,6 +690,48 @@ HosLemLogitSavings <- hoslem.test(dataBinary$savings,
                               fitted(logitSavings), g=10)
 print(HosLemLogitSavings)
 print(cbind(HosLemLogitSavings$expected, HosLemLogitSavings$observed))
+```
+
+## Cluster Analysis
+```{r cluster-analysis}
+# Select variables for cluster analysis
+dataCluster <- select(dataClean, mpssScore, issScore, gritScore, povertyRatio)
+
+# Normalize data
+dataClusterMean <- apply(dataCluster, 2, mean)
+dataClusterSD <- apply(dataCluster, 2, sd)
+dataClusterNormalized <- scale(dataCluster, dataClusterMean, dataClusterSD)
+
+# Calculate Euclidean distance
+EuclideanDistance <- dist(dataClusterNormalized)
+
+# Prepare Cluster Dendrogram with Complete Linkage
+hClusterCL <- hclust(EuclideanDistance)
+plot(hClusterCL, labels=dataClean$responseID, hang=-1)
+
+# Prepare Cluster Dendrogram with Average Linkage
+hClusterAv <- hclust(EuclideanDistance, method="average")
+plot(hClusterAv, labels=dataClean$responseID, hang=-1)
+
+# Inspect Cluster membership
+membershipCL <- cutree(hClusterCL, 3) # complete linkage where distance between clusters is the largest between data points
+membershipAv <- cutree(hClusterAv, 3) # average linkage where distance between clusters is the average of all data points within clusters
+table(membershipCL, membershipAv)
+
+# Calculate cluster mean 
+aggregate(dataClusterNormalized, list(membershipCL), mean) # Using normalized data
+aggregate(dataCluster, list(membershipCL), mean) # Using original data
+
+# Create Silhouette plot
+plot(silhouette(cutree(hClusterCL,3),distance))
+
+# Create Scree plot
+withinGrpSumSq <- (nrow(dataClusterNormalized)-1)*sum(apply(dataClusterNormalized,2,var))
+for (i in 2:20) withinGrpSumSq[i] <- sum(kmeans(dataClusterNormalized, centers=i)$withinss)
+plot(1:20, withinGrpSumSq, type="b", xlab="Number of Clusters", ylab="Within Group")
+
+# Prepare K-means Clustering
+kMeansCluster <- kmeans(dataClusterNormalized,3)
 ```
 
 ## Save Data
